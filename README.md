@@ -14,11 +14,19 @@ Required main package: [Symmer](https://github.com/qmatter-labs/symmer/tree/main
 
 Simply download package locally and 
 
-`pip isntall .`
+` conda create --name symmer-pyscf python=3.10`
 
-In additiona to `Symmer`, this workflow requires use a few external packages such as `pennylane`, `pyscf` and `openfermion-pyscf`.
+`conda activate symmer-pyscf`
 
-After installation, check `/examples/example_notebook.ipynb` for how to use it.
+`pip isntall .` (under root directory)
+
+
+
+You can test either by running
+
+`python examples/example_python_combined.py` 
+
+or check `/examples/example_notebook.ipynb`
 
 
 ## Citation
