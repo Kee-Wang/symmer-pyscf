@@ -18,7 +18,7 @@ Simply download package locally and
 
 `conda activate symmer-pyscf`
 
-`pip isntall .` (under root directory)
+`pip install .` (under root directory)
 
 
 
