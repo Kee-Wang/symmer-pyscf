@@ -16,7 +16,7 @@ from .transforms import (
 
 def mol_info_to_H_cs(
         mol_info: Dict[str, Any],
-        n_cs_qubit: int,
+        n_cs_qubits: int,
         beta: Optional[np.ndarray] = None,
         manual_stabilizer: Optional[list] = None,
         use_ccsd_state: bool = False,
@@ -42,9 +42,9 @@ def mol_info_to_H_cs(
             - number_beta: Beta particle number operator
             - CCSD_generator: CCSD cluster operator
             - n_particles: Total number of particles
-            - n_qubit_full: Total number of qubits
+            - n_qubits_full: Total number of qubits
             - fci_energy: FCI energy for reference
-        n_cs_qubit: Target number of qubits in contextual subspace
+        n_cs_qubits: Target number of qubits in contextual subspace
         beta: Transformation matrix (generated randomly if None)
         manual_stabilizer: Optional manual stabilizer specification
         use_ccsd_state: Use CCSD state instead of FCI for stabilizer selection
@@ -63,13 +63,13 @@ def mol_info_to_H_cs(
             - beta: Transformation matrix used
 
     Example:
-        >>> data_cs = mol_info_to_H_cs(mol_info, n_cs_qubit=2, beta=None)
+        >>> data_cs = mol_info_to_H_cs(mol_info, n_cs_qubits=2, beta=None)
         >>> print(f"CS Energy: {data_cs['cs_energy']:.6f}")
         >>> print(f"Error vs FCI: {data_cs['cs_energy'] - data_cs['fci_energy']:.6e}")
     """
     # Generate random invertible transformation if not provided
     if beta is None:
-        beta = random_invertible_binary_matrix(n=mol_info['n_qubit_full'])
+        beta = random_invertible_binary_matrix(n=mol_info['n_qubits_full'])
 
     # Extract molecular data
     H = mol_info['H_second_quantized']
@@ -116,7 +116,7 @@ def mol_info_to_H_cs(
 
     N_alpha_tap = taper_obj.taper_it(aux_operator=number_alpha)
     N_beta_tap = taper_obj.taper_it(aux_operator=number_beta)
-    CCSD_generator_tap = taper_obj.taper_it(aux_operator=CCSD_generator)
+    ccsd_generator_tap = taper_obj.taper_it(aux_operator=CCSD_generator)
 
     # Project states onto tapered space
     tap_ccsd_state = taper_obj.project_state(ccsd_state)
@@ -136,7 +136,7 @@ def mol_info_to_H_cs(
     # Update stabilizers based on reference state
     reference_state = tap_ccsd_state if use_ccsd_state else tap_fci_state
     cs_vqe.update_stabilizers(
-        n_qubits=n_cs_qubit,
+        n_qubits=n_cs_qubits,
         strategy='aux_preserving',
         aux_operator=reference_state.state_op
     )
@@ -145,7 +145,7 @@ def mol_info_to_H_cs(
     H_cs = cs_vqe.project_onto_subspace()
     Na_CS = cs_vqe.project_onto_subspace(N_alpha_tap)
     Nb_CS = cs_vqe.project_onto_subspace(N_beta_tap)
-    CCSD_generator_CS = cs_vqe.project_onto_subspace(CCSD_generator_tap)
+    CCSD_generator_CS = cs_vqe.project_onto_subspace(ccsd_generator_tap)
 
     # Compute ground state energy in contextual subspace
     cs_energy, cs_state = exact_gs_energy(
@@ -171,5 +171,3 @@ def mol_info_to_H_cs(
         'n_terms_ccsd_generator': CCSD_generator_CS.n_terms,
         'n_qubits_cs': H_cs.n_qubits
     }
-
-

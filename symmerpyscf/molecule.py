@@ -161,7 +161,7 @@ def generate_symmer_data(
         'number_alpha': of.FermionOperator(symmer_data['auxiliary_operators']['N_alpha_second_quantized']),
         'number_beta': of.FermionOperator(symmer_data['auxiliary_operators']['N_beta_second_quantized']),
         'CCSD_generator': of.FermionOperator(symmer_data['auxiliary_operators']['CCSD_operator_second_quantized']),
-        'n_qubit_full': symmer_data['n_qubits'],
+        'n_qubits_full': symmer_data['n_qubits'],
         'n_particles': symmer_data['n_particles']['total'],
         'fci_energy': symmer_data['calculated_properties']['FCI']['energy']
     }
@@ -419,7 +419,7 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
     symmer_data['unit'] = pyscf_molecule.unit
     try:
         symmer_data['geometry'] = [[atom[0], *atom[1]] for atom in molecule.geometry]
-    except:
+    except (TypeError, IndexError):
         symmer_data['geometry'] = molecule.geometry
 
     symmer_data['basis'] = molecule.basis

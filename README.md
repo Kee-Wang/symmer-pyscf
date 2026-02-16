@@ -5,29 +5,31 @@ Required main package: [Symmer](https://github.com/qmatter-labs/symmer/tree/main
 ## Features:
 1. Generate Symmer-compatible Pauli Hamiltonian and states with **user-provided** molecular configuration (geometry, symmetry, spin etc.).
 2. Generalized transformation: The Fermion $\mapsto$ qubit transformation could be Jordan-Wigner, Bravyi-Kitaev or **arbitrary** invertible binary matrices.
-
-
-
-
+3. **CAS (Complete Active Space) Hamiltonian generation**: Build qubit Hamiltonians restricted to a complete active space via `generate_cas_qubit_hamiltonian`, with optional MP2 natural orbital selection.
 
 ## Installation
 
-Simply download package locally and 
+Simply download package locally and
 
-` conda create --name symmer-pyscf python=3.10`
+`conda create --name symmer-pyscf python=3.10`
 
 `conda activate symmer-pyscf`
 
 `pip install .` (under root directory)
 
-
+## Usage
 
 You can test either by running
 
-`python examples/example_python_combined.py` 
+`python examples/example_python_combined.py`
 
 or check `/examples/example_notebook.ipynb`
 
+## Tests
+
+Run the test suite with:
+
+`pytest tests/ --durations=0 -v`
 
 ## Citation
 For generalized transformation cite:

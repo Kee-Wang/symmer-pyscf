@@ -183,23 +183,19 @@ def pauli_string_complexity(operator: PauliwordOp) -> Dict[str, Any]:
     """
     pauli_dict = operator.to_dictionary
 
-    # Count weight distribution
-    weights = {}
-    for pauli_str in pauli_dict.keys():
-        weight = sum(1 for p in pauli_str if p != 'I')
-        weights[weight] = weights.get(weight, 0) + 1
+    all_weights = [
+        sum(1 for p in pauli_str if p != 'I')
+        for pauli_str in pauli_dict.keys()
+    ]
 
-    # Calculate statistics
-    all_weights = []
-    for pauli_str in pauli_dict.keys():
-        weight = sum(1 for p in pauli_str if p != 'I')
-        all_weights.append(weight)
+    weight_distribution = {}
+    for w in all_weights:
+        weight_distribution[w] = weight_distribution.get(w, 0) + 1
 
     return {
         'n_terms': operator.n_terms,
         'n_qubits': operator.n_qubits,
-        'weight_distribution': weights,
+        'weight_distribution': weight_distribution,
         'max_weight': max(all_weights) if all_weights else 0,
         'mean_weight': np.mean(all_weights) if all_weights else 0,
-        'total_paulis': sum(weights.values())
     }

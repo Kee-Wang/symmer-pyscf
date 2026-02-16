@@ -4,7 +4,7 @@ import numpy as np
 import os
 import time
 import multiprocessing
-from typing import Optional, Union, List
+from typing import Optional, Union
 from sympy import Matrix
 
 from openfermion.ops.operators import FermionOperator, QubitOperator
@@ -38,7 +38,6 @@ def random_invertible_binary_matrix(
     if beta is not None:
         return _select_beta(beta, n)
 
-    ct = 0
     while True:
         if max_non_zero is not None:
             # Create sparse matrix with at most max_non_zero ones
@@ -62,7 +61,7 @@ def random_invertible_binary_matrix(
         if Matrix(matrix).det() % 2 != 0:
             return matrix
 
-        ct += 1
+        # Retry with a new random matrix
 
 
 def generalized_transformation(
@@ -104,10 +103,10 @@ def generalized_transformation(
     beta = _select_beta(beta, n_qubits)
 
     if isinstance(operator, FermionOperator):
-        return _bravyi_kitaev_fermion_operator(operator, beta)
+        return _transform_fermion_operator(operator, beta)
 
     raise TypeError(
-        f"Couldn't apply Generalized Transform to object of type {type(operator)}"
+        f"Expected FermionOperator, got {type(operator).__name__}"
     )
 
 
@@ -191,39 +190,48 @@ def generalized_transformation_symmer_jw_state(
 
 def _select_beta(beta: Optional[Union[str, np.ndarray]], n_qubits: int) -> np.ndarray:
     """Select or generate beta transformation matrix."""
-    # Handle None case
     if beta is None:
         return np.eye(n_qubits, dtype=np.int8)
 
-    # Handle string specifications
     if isinstance(beta, str):
         if beta == 'Jordan-Wigner':
             return np.eye(n_qubits, dtype=np.int8)
         elif beta == 'Bravyi-Kitaev':
             return _bravyi_kitaev_sub_matrix(n_qubits)
-        elif beta == 'Bravyi-Kitaev-plus-i':
-            base_beta = _bravyi_kitaev_sub_matrix(n_qubits)
-            betas = [base_beta]
-            for i in range(base_beta.shape[0]):
-                for j in range(i + 1, base_beta.shape[0]):
-                    beta_new = base_beta.copy()
-                    beta_new[i, j] = np.mod(base_beta[i, j] + 1, 2)
-                    betas.append(beta_new)
-            return betas
         else:
-            raise ValueError(f"Invalid Beta string: {beta}")
+            raise ValueError(f"Invalid beta string: {beta}")
 
-    # Handle numpy array - return as is
     if isinstance(beta, np.ndarray):
         return beta
 
-    # Fallback: convert to array and return
     return np.array(beta, dtype=np.int8)
+
+
+def bravyi_kitaev_single_perturbations(n_qubits: int) -> list:
+    """Generate BK matrix plus all single upper-triangular bit-flip perturbations.
+
+    Returns a list of n_qubits x n_qubits binary matrices: the standard BK matrix
+    followed by each matrix with one upper-triangular entry flipped.
+
+    Args:
+        n_qubits: Number of qubits.
+
+    Returns:
+        List of numpy arrays, length 1 + n_qubits*(n_qubits-1)/2.
+    """
+    base_beta = _bravyi_kitaev_sub_matrix(n_qubits)
+    matrices = [base_beta]
+    for i in range(n_qubits):
+        for j in range(i + 1, n_qubits):
+            perturbed = base_beta.copy()
+            perturbed[i, j] = np.mod(base_beta[i, j] + 1, 2)
+            matrices.append(perturbed)
+    return matrices
 
 
 def _bravyi_kitaev_sub_matrix(n_qubits: int) -> np.ndarray:
     """Generate Bravyi-Kitaev transformation matrix."""
-    log_qubit_number = int(np.ceil(np.sqrt(n_qubits - 0.5)))
+    log_qubit_number = (n_qubits - 1).bit_length()
     full_beta_matrix = _bravyi_kitaev_matrix_full_size(log_qubit_number)
     size_beta_matrix = 2 ** log_qubit_number
 
@@ -280,77 +288,76 @@ def _generalized_transformation_table(beta: np.ndarray) -> dict:
     """Pre-compute transformation table for all ladder operators."""
     try:
         beta_inv = Matrix(beta).inv_mod(2)
-    except:
+    except (ValueError, ZeroDivisionError):
         raise ValueError("Input Beta Matrix is not invertible")
 
-    n_qubit = beta.shape[0]
+    n_qubits = beta.shape[0]
     table = {}
 
-    for index in range(n_qubit):
+    for index in range(n_qubits):
         update_set = _update_set(index, beta)
         remainder_set = _remainder_set(index, beta_inv)
         parity_set = _parity_set(index, beta_inv)
 
-        transformed_operator = QubitOperator(
+        # Majorana sum operator: c_j = a_j + a†_j
+        majorana_sum = QubitOperator(
             [(i, 'X') for i in update_set] + [(i, 'Z') for i in parity_set],
             0.5
         )
 
-        transformed_majorana_difference = QubitOperator(
+        # Majorana difference operator: d_j = a†_j - a_j
+        majorana_diff = QubitOperator(
             [(i, 'X') for i in update_set] + [(i, 'Z') for i in remainder_set],
             0.5
         )
 
-        # action=1: creation, action=0: annihilation
-        table[(index, 1)] = transformed_operator + transformed_majorana_difference
-        table[(index, 0)] = transformed_operator - transformed_majorana_difference
+        # a†_j = (c_j + d_j) / 2,  a_j = (c_j - d_j) / 2
+        table[(index, 1)] = majorana_sum + majorana_diff
+        table[(index, 0)] = majorana_sum - majorana_diff
 
     return table
 
 
-def _transform_ladder_operator(
+def _lookup_ladder_operator(
         ladder_operator: tuple,
         transformation_table: dict
 ) -> QubitOperator:
-    """Transform a single ladder operator using pre-computed table."""
+    """Look up the qubit representation of a ladder operator from the pre-computed table."""
     index, action = ladder_operator
     return transformation_table[(index, action)]
 
 
-def _transform_operator_term(
+def _apply_term_transformation(
         term: list,
-        coefficient: float,
+        coeff: float,
         transformation_table: dict
 ) -> QubitOperator:
-    """Transform a single term in the FermionOperator."""
-    transformed_ladder_ops = (
-        _transform_ladder_operator(ladder_operator, transformation_table)
-        for ladder_operator in term
+    """Transform a single FermionOperator term into a QubitOperator."""
+    qubit_ops = (
+        _lookup_ladder_operator(ladder_op, transformation_table)
+        for ladder_op in term
     )
-    return _inline_product(
-        factors=transformed_ladder_ops,
-        seed=QubitOperator((), coefficient)
-    )
+    return _accumulate_product(qubit_ops, QubitOperator((), coeff))
 
 
-def _transform_wrapper(args):
-    """Wrapper for multiprocessing."""
-    term, coefficient, transformation_table = args
-    return _transform_operator_term(term, coefficient, transformation_table)
+def _parallel_term_worker(args):
+    """Multiprocessing worker for per-term transformation."""
+    term, coeff, transformation_table = args
+    return _apply_term_transformation(term, coeff, transformation_table)
 
 
-def _bravyi_kitaev_fermion_operator(
+def _transform_fermion_operator(
         operator: FermionOperator,
         beta: np.ndarray
 ) -> QubitOperator:
     """Transform FermionOperator using generalized transformation with parallelization."""
     n_qubits = beta.shape[0]
-    N = count_qubits(operator)
+    n_required = count_qubits(operator)
 
-    if n_qubits is None:
-        n_qubits = N
-    if n_qubits < N:
-        raise ValueError('Invalid number of qubits specified.')
+    if n_qubits < n_required:
+        raise ValueError(
+            f"Beta matrix has {n_qubits} qubits but operator requires {n_required}"
+        )
 
     transformation_table = _generalized_transformation_table(beta)
 
@@ -362,20 +369,20 @@ def _bravyi_kitaev_fermion_operator(
 
     # Use multiprocessing for large operators
     with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-        transformed_terms = pool.map(_transform_wrapper, args_list)
+        transformed_terms = pool.map(_parallel_term_worker, args_list)
 
-    return _inline_sum(summands=transformed_terms, seed=QubitOperator())
-
-
-def _inline_sum(summands, seed):
-    """Compute sum using __iadd__ operator."""
-    for r in summands:
-        seed += r
-    return seed
+    return _accumulate_sum(transformed_terms, QubitOperator())
 
 
-def _inline_product(factors, seed):
-    """Compute product using __imul__ operator."""
-    for r in factors:
-        seed *= r
-    return seed
+def _accumulate_sum(terms, initial):
+    """Accumulate a sum of QubitOperators via in-place addition."""
+    for term in terms:
+        initial += term
+    return initial
+
+
+def _accumulate_product(operators, initial):
+    """Accumulate a product of QubitOperators via in-place multiplication."""
+    for op in operators:
+        initial *= op
+    return initial

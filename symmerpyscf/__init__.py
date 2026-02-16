@@ -13,7 +13,9 @@ from .transforms import (
     generalized_transformation_product_state,
     generalized_transformation_symmer_jw_state,
     random_invertible_binary_matrix,
+    bravyi_kitaev_single_perturbations,
 )
+from .cas_hamiltonian import generate_cas_qubit_hamiltonian
 from .contextual import mol_info_to_H_cs
 from .utils import symmer_to_dict
 
@@ -25,6 +27,8 @@ __all__ = [
     "generalized_transformation_product_state",
     "generalized_transformation_symmer_jw_state",
     "random_invertible_binary_matrix",
+    "bravyi_kitaev_single_perturbations",
+    "generate_cas_qubit_hamiltonian",
     "mol_info_to_H_cs",
     "symmer_to_dict",
 ]
