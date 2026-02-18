@@ -18,6 +18,17 @@ from .transforms import (
 from .cas_hamiltonian import generate_cas_qubit_hamiltonian
 from .contextual import mol_info_to_H_cs
 from .utils import symmer_to_dict
+from .scaling import (
+    MoleculeRecord,
+    ScalingResult,
+    parse_molecule_csv,
+    scale_geometry,
+    generate_scaling_grid,
+    should_stop_scanning,
+    run_single_point,
+    run_molecule_scan,
+    run_database_pipeline,
+)
 
 __all__ = [
     "generate_symmer_data",
@@ -31,4 +42,13 @@ __all__ = [
     "generate_cas_qubit_hamiltonian",
     "mol_info_to_H_cs",
     "symmer_to_dict",
+    "MoleculeRecord",
+    "ScalingResult",
+    "parse_molecule_csv",
+    "scale_geometry",
+    "generate_scaling_grid",
+    "should_stop_scanning",
+    "run_single_point",
+    "run_molecule_scan",
+    "run_database_pipeline",
 ]

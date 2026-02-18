@@ -123,7 +123,7 @@ print("=" * 60)
 
 # H2 / STO-3G  (full space = CAS(2,2) = 4 qubits)
 h2_geom = [("H", (0, 0, 0)), ("H", (0, 0, 0.735))]
-result = generate_cas_qubit_hamiltonian(h2_geom, "sto-3g", ncas=2, nelecas=2)
+result, symmer_data = generate_cas_qubit_hamiltonian(h2_geom, "sto-3g", ncas=2, nelecas=2)
 
 print(f"\nH2 / STO-3G  CAS(2,2)")
 print(f"  Qubits:       {result['n_qubits']}")
@@ -131,10 +131,9 @@ print(f"  E(HF):        {result['e_hf']:.8f} Ha")
 print(f"  E(CASCI):     {result['e_casci']:.8f} Ha")
 print(f"  E(FCI):       {result['e_fci']:.8f} Ha")
 
-# Verify self-consistency: min(eig(H_cas)) + e_core == e_casci
+# Verify self-consistency: min(eig(H_cas)) == e_casci (e_core is included in H_cas)
 evals = np.linalg.eigvalsh(result['H_cas'].to_sparse_matrix.toarray())
-e_total = evals[0] + result['e_core']
-print(f"  min(eig)+e_core: {e_total:.8f} Ha  (diff: {abs(e_total - result['e_casci']):.2e})")
+print(f"  min(eig(H_cas)): {evals[0]:.8f} Ha  (diff: {abs(evals[0] - result['e_casci']):.2e})")
 
 # N2 / STO-3G  (multiple active spaces)
 n2_geom = [("N", (0, 0, 0)), ("N", (0, 0, 1.1))]
@@ -142,7 +141,7 @@ print(f"\nN2 / STO-3G  at R=1.1 A")
 print(f"  {'CAS':12s} {'Qubits':>6s} {'E(CASCI)':>16s} {'E(CASCI)-E(FCI)':>16s}")
 
 for ncas, nelecas in [(4, 2), (6, 6), (10, 14)]:
-    r = generate_cas_qubit_hamiltonian(n2_geom, "sto-3g", ncas=ncas, nelecas=nelecas)
+    r, _ = generate_cas_qubit_hamiltonian(n2_geom, "sto-3g", ncas=ncas, nelecas=nelecas)
     label = f"CAS({ncas},{nelecas})"
     print(f"  {label:12s} {r['n_qubits']:6d} {r['e_casci']:16.8f} {r['e_casci'] - r['e_fci']:16.2e}")
 

@@ -1,14 +1,68 @@
 """CAS (Complete Active Space) qubit Hamiltonian generation."""
 
-import numpy as np
+import json
 from pyscf import gto, scf, fci, mcscf, mp, ao2mo
 from openfermion.chem.molecular_data import spinorb_from_spatial
+from openfermion.ops import FermionOperator
 from openfermion.ops.representations import InteractionOperator
 from openfermion.transforms import get_fermion_operator
 import openfermion as of
 from symmer import PauliwordOp
 
 from .molecule import _convert_fci_state
+from .utils import symmer_to_dict
+
+
+def _generate_cas_auxiliary_operators(n_qubits):
+    """Generate number and spin operators for CAS active space.
+
+    Parameters
+    ----------
+    n_qubits : int
+        Number of qubits (= 2 * ncas).
+
+    Returns
+    -------
+    dict
+        Symmer PauliwordOp and openfermion FermionOperator forms of
+        number operators (total, alpha, beta) and S^2.
+    """
+    of_number_operator = FermionOperator()
+    of_number_operator_alpha = FermionOperator()
+    of_number_operator_beta = FermionOperator()
+
+    for i in range(n_qubits):
+        if i % 2 == 0:
+            of_number_operator_alpha += of.number_operator(n_qubits, mode=i)
+        else:
+            of_number_operator_beta += of.number_operator(n_qubits, mode=i)
+        of_number_operator += of.number_operator(n_qubits, mode=i)
+
+    symmer_number_operator = PauliwordOp.from_openfermion(
+        of.jordan_wigner(of_number_operator), n_qubits=n_qubits
+    )
+    symmer_number_operator_alpha = PauliwordOp.from_openfermion(
+        of.jordan_wigner(of_number_operator_alpha), n_qubits=n_qubits
+    )
+    symmer_number_operator_beta = PauliwordOp.from_openfermion(
+        of.jordan_wigner(of_number_operator_beta), n_qubits=n_qubits
+    )
+
+    of_s2_operator = of.hamiltonians.s_squared_operator(n_qubits // 2)
+    symmer_s2 = PauliwordOp.from_openfermion(
+        of.jordan_wigner(of_s2_operator), n_qubits=n_qubits
+    )
+
+    return {
+        'number_operator': symmer_number_operator,
+        'number_operator_of': of_number_operator,
+        'N_alpha': symmer_number_operator_alpha,
+        'N_alpha_of': of_number_operator_alpha,
+        'N_beta': symmer_number_operator_beta,
+        'N_beta_of': of_number_operator_beta,
+        'S2': symmer_s2,
+        'S2_of': of_s2_operator,
+    }
 
 
 def generate_cas_qubit_hamiltonian(
@@ -17,6 +71,7 @@ def generate_cas_qubit_hamiltonian(
     ncas,
     nelecas,
     use_mp2_natorbs=True,
+    save_file=None,
 ):
     """Generate a qubit Hamiltonian for a Complete Active Space.
 
@@ -37,30 +92,36 @@ def generate_cas_qubit_hamiltonian(
         If tuple, (n_alpha, n_beta).
     use_mp2_natorbs : bool, optional
         Use MP2 natural orbitals as the CAS orbital basis (default True).
+    save_file : str, optional
+        Path to save the symmer_data dict as JSON (default None).
 
     Returns
     -------
-    dict
-        H_cas : PauliwordOp
-            Qubit Hamiltonian on 2*ncas qubits (does NOT include e_core).
-        H_fermion : FermionOperator
-            Fermionic Hamiltonian in the active space.
-        e_core : float
-            Frozen-core energy. Add to any eigenvalue of H_cas to get total energy.
-        cas_ground_state : QuantumState
-            CASCI ground state on 2*ncas qubits.
-        e_casci : float
-            CASCI total energy (= smallest eigenvalue of H_cas + e_core).
-        e_fci : float
-            Full-space FCI energy (for reference/validation).
-        e_hf : float
-            Hartree-Fock energy (for reference/validation).
-        n_qubits : int
-            Number of qubits (= 2 * ncas).
-        ncas : int
-            Number of active spatial orbitals.
-        nelecas : tuple[int, int]
-            Active electrons as (n_alpha, n_beta).
+    tuple[dict, dict]
+        cas_result : dict
+            H_cas : PauliwordOp
+                Qubit Hamiltonian on 2*ncas qubits (includes e_core).
+            H_fermion : FermionOperator
+                Fermionic Hamiltonian in the active space.
+            e_core : float
+                Frozen-core energy (already included in H_cas).
+            cas_ground_state : QuantumState
+                CASCI ground state on 2*ncas qubits.
+            e_casci : float
+                CASCI total energy (= smallest eigenvalue of H_cas).
+            e_fci : float
+                Full-space FCI energy (for reference/validation).
+            e_hf : float
+                Hartree-Fock energy (for reference/validation).
+            n_qubits : int
+                Number of qubits (= 2 * ncas).
+            ncas : int
+                Number of active spatial orbitals.
+            nelecas : tuple[int, int]
+                Active electrons as (n_alpha, n_beta).
+        symmer_data : dict
+            Symmer-compatible JSON schema dictionary with Hamiltonian,
+            auxiliary operators, HF state, and CAS metadata.
 
     Raises
     ------
@@ -109,10 +170,10 @@ def generate_cas_qubit_hamiltonian(
     # Step 5: Convert integral convention (PySCF chemist -> openfermion)
     h2_of = h2eff_4d.transpose(0, 2, 3, 1)
 
-    # Step 6: Build InteractionOperator
+    # Step 6: Build InteractionOperator (include e_core so eigenvalues = total energy)
     one_body_SO, two_body_SO = spinorb_from_spatial(h1eff, h2_of)
     interaction_op = InteractionOperator(
-        constant=0.0,
+        constant=e_core,
         one_body_tensor=one_body_SO,
         two_body_tensor=0.5 * two_body_SO,
     )
@@ -127,7 +188,60 @@ def generate_cas_qubit_hamiltonian(
     nelec_a, nelec_b = mc.nelecas
     cas_ground_state = _convert_fci_state(ci_vec, norb=ncas, n_alpha=nelec_a, n_beta=nelec_b)
 
-    return {
+    # Step 9: Build CAS HF state (interleaved alpha/beta convention)
+    nelecas_total = nelec_a + nelec_b
+    hf_array = [0] * n_qubits
+    hf_array[0:nelecas_total] = [1] * nelecas_total
+
+    # Step 10: Build auxiliary operators for CAS space
+    operators = _generate_cas_auxiliary_operators(n_qubits)
+
+    # Step 11: Build symmer-compatible data dict
+    symmer_data = {
+        "H": symmer_to_dict(H_cas),
+        "H_second_quantized": str(fermion_op),
+        "qubit_encoding": "JW",
+        "geometry": [[atom, *coords] for atom, coords in geometry],
+        "basis": basis,
+        "charge": mol.charge,
+        "spin": mol.spin,
+        "hf_array": hf_array,
+        "hf_state": {"".join(str(b) for b in hf_array): [1.0, 0.0]},
+        "n_particles": {
+            "total": nelecas_total,
+            "alpha": nelec_a,
+            "beta": nelec_b,
+        },
+        "n_qubits": n_qubits,
+        "calculated_properties": {
+            "HF": {"energy": e_hf, "converged": True},
+            "FCI": {"energy": e_fci, "converged": True},
+            "CASCI": {"energy": e_casci, "converged": True},
+        },
+        "auxiliary_operators": {
+            "number_operator": symmer_to_dict(operators['number_operator']),
+            "N_alpha": symmer_to_dict(operators['N_alpha']),
+            "N_beta": symmer_to_dict(operators['N_beta']),
+            "S^2_operator": symmer_to_dict(operators['S2']),
+            "fci_state": symmer_to_dict(cas_ground_state),
+            "number_operator_second_quantized": str(operators['number_operator_of']),
+            "N_alpha_second_quantized": str(operators['N_alpha_of']),
+            "N_beta_second_quantized": str(operators['N_beta_of']),
+            "S^2_operator_second_quantized": str(operators['S2_of']),
+        },
+        "cas_metadata": {
+            "ncas": ncas,
+            "nelecas": [nelec_a, nelec_b],
+            "e_core": e_core,
+            "use_mp2_natorbs": use_mp2_natorbs,
+        },
+    }
+
+    if save_file is not None:
+        with open(save_file, 'w', encoding='utf-8') as f:
+            json.dump(symmer_data, f, indent=4)
+
+    cas_result = {
         "H_cas": H_cas,
         "H_fermion": fermion_op,
         "e_core": e_core,
@@ -139,3 +253,5 @@ def generate_cas_qubit_hamiltonian(
         "ncas": ncas,
         "nelecas": (nelec_a, nelec_b),
     }
+
+    return cas_result, symmer_data

@@ -3,7 +3,7 @@
 from typing import Dict, Optional, Any
 import numpy as np
 
-from symmer import PauliwordOp, QuantumState
+from symmer import PauliwordOp
 from symmer.projection import QubitTapering, ContextualSubspace
 from symmer.utils import exact_gs_energy
 

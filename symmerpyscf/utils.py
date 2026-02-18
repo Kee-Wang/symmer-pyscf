@@ -6,7 +6,7 @@ from openfermion.ops import FermionOperator
 from symmer import QuantumState, PauliwordOp
 
 
-def symmer_to_dict(state: Union[QuantumState, PauliwordOp]) -> Dict[str, list]:
+def symmer_to_dict(state: Union[QuantumState, PauliwordOp]) -> Dict[str, Any]:
     """
     Convert Symmer QuantumState or PauliwordOp to JSON-serializable dictionary.
 
@@ -14,18 +14,22 @@ def symmer_to_dict(state: Union[QuantumState, PauliwordOp]) -> Dict[str, list]:
         state: QuantumState or PauliwordOp object
 
     Returns:
-        Dictionary with string keys and [real, imag] value pairs
+        Dictionary with string keys. Values are plain floats when the
+        imaginary part is zero, or [real, imag] lists otherwise.
 
     Example:
         >>> from symmer import QuantumState
         >>> state = QuantumState.from_dictionary({'00': 1.0})
         >>> state_dict = symmer_to_dict(state)
         >>> print(state_dict)
-        {'00': [1.0, 0.0]}
+        {'00': 1.0}
     """
     state_dict = {}
     for key, val in state.sort().to_dictionary.items():
-        state_dict[key] = [float(val.real), float(val.imag)]
+        if val.imag == 0:
+            state_dict[key] = float(val.real)
+        else:
+            state_dict[key] = [float(val.real), float(val.imag)]
 
     return state_dict
 

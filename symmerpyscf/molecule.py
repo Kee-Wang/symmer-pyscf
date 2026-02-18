@@ -1,8 +1,8 @@
 """Core molecular data generation and initialization functions."""
 
 import json
+import traceback
 from typing import Dict, List, Tuple, Optional, Any
-import numpy as np
 
 from openfermion.chem import MolecularData
 from openfermion.ops import FermionOperator
@@ -104,20 +104,42 @@ def generate_symmer_data(
     molecule.two_body_integrals = two_body_integrals
     molecule.overlap_integrals = pyscf_scf.get_ovlp()
 
+    # Track errors for audit trail
+    _errors = {}
+
     # Convert FCI state to Symmer format
-    norb = mf.mo_coeff.shape[1]
-    n_alpha, n_beta = pyscf_molecule.nelec
-    qml_fci_state = _convert_fci_state(fcivec, norb, n_alpha, n_beta)
+    qml_fci_state = None
+    if pyscf_fci is not None and fcivec is not None:
+        try:
+            norb = mf.mo_coeff.shape[1]
+            n_alpha, n_beta = pyscf_molecule.nelec
+            qml_fci_state = _convert_fci_state(fcivec, norb, n_alpha, n_beta)
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f'WARNING [AUDIT]: FCI state conversion failed\n'
+                  f'  Error: {type(e).__name__}: {e}\n'
+                  f'  Traceback:\n{tb}')
+            _errors['fci_state_conversion'] = f'{type(e).__name__}: {e}'
 
     # Generate CCSD operator in second quantization
-    t1 = pyscf.cc.addons.spatial2spin(pyscf_ccsd.t1)
-    t2 = pyscf.cc.addons.spatial2spin(pyscf_ccsd.t2)
-    ccsd_2nd = t1_t2_to_fermionic_operator(
-        t1, t2,
-        pyscf_molecule.nelec[0] * 2,
-        (pyscf_molecule.nao_nr() - pyscf_molecule.nelec[0]) * 2
-    )
-    symmer_ccsd_generator = PauliwordOp.from_openfermion(of.jordan_wigner(ccsd_2nd))
+    symmer_ccsd_generator = None
+    ccsd_2nd = None
+    if pyscf_ccsd is not None:
+        try:
+            t1 = pyscf.cc.addons.spatial2spin(pyscf_ccsd.t1)
+            t2 = pyscf.cc.addons.spatial2spin(pyscf_ccsd.t2)
+            ccsd_2nd = t1_t2_to_fermionic_operator(
+                t1, t2,
+                pyscf_molecule.nelec[0] * 2,
+                (pyscf_molecule.nao_nr() - pyscf_molecule.nelec[0]) * 2
+            )
+            symmer_ccsd_generator = PauliwordOp.from_openfermion(of.jordan_wigner(ccsd_2nd))
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f'WARNING [AUDIT]: CCSD operator construction failed\n'
+                  f'  Error: {type(e).__name__}: {e}\n'
+                  f'  Traceback:\n{tb}')
+            _errors['ccsd_operator'] = f'{type(e).__name__}: {e}'
 
     # Generate auxiliary operators
     operators = _generate_auxiliary_operators(molecule)
@@ -128,12 +150,31 @@ def generate_symmer_data(
     second_quantized_ham = get_fermion_operator(pyscf_molecular_data.get_molecular_hamiltonian())
     symmer_ham = PauliwordOp.from_openfermion(of.jordan_wigner(second_quantized_ham))
 
-    # Import states
-    qml_ccsd_state = qml.qchem.import_state(pyscf_ccsd).reshape(-1, 1)
-    symmer_ccsd_state = QuantumState.from_array(qml_ccsd_state)
+    # Import CCSD state
+    symmer_ccsd_state = None
+    if pyscf_ccsd is not None:
+        try:
+            qml_ccsd_state = qml.qchem.import_state(pyscf_ccsd).reshape(-1, 1)
+            symmer_ccsd_state = QuantumState.from_array(qml_ccsd_state)
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f'WARNING [AUDIT]: CCSD state import failed\n'
+                  f'  Error: {type(e).__name__}: {e}\n'
+                  f'  Traceback:\n{tb}')
+            _errors['ccsd_state_import'] = f'{type(e).__name__}: {e}'
 
-    qml_cisd_state = qml.qchem.import_state(pyscf_cisd).reshape(-1, 1)
-    symmer_cisd_state = QuantumState.from_array(qml_cisd_state)
+    # Import CISD state
+    symmer_cisd_state = None
+    if pyscf_cisd is not None:
+        try:
+            qml_cisd_state = qml.qchem.import_state(pyscf_cisd).reshape(-1, 1)
+            symmer_cisd_state = QuantumState.from_array(qml_cisd_state)
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f'WARNING [AUDIT]: CISD state import failed\n'
+                  f'  Error: {type(e).__name__}: {e}\n'
+                  f'  Traceback:\n{tb}')
+            _errors['cisd_state_import'] = f'{type(e).__name__}: {e}'
 
     # HF state
     hf_state = [0] * molecule.n_qubits
@@ -147,24 +188,39 @@ def generate_symmer_data(
         symmer_ccsd_state, symmer_cisd_state, qml_fci_state
     )
 
+    # Attach error audit trail to output
+    if _errors:
+        symmer_data['_errors'] = _errors
+
     # Save if requested
     if save_file is not None:
         with open(save_file, 'w', encoding='utf-8') as f:
             json.dump(symmer_data, f, indent=4)
 
-    # Prepare mol_info for workflow
+    # Prepare mol_info for workflow — always include core fields,
+    # conditionally include fields that depend on post-HF results
     mol_info = {
         'H_second_quantized': of.FermionOperator(symmer_data['H_second_quantized']),
         'hf_state': QuantumState.from_dictionary(symmer_data['hf_state']),
-        'fci_state': QuantumState.from_dictionary(symmer_data['auxiliary_operators']['fci_state']),
-        'ccsd_state': QuantumState.from_dictionary(symmer_data['auxiliary_operators']['ccsd_state']),
-        'number_alpha': of.FermionOperator(symmer_data['auxiliary_operators']['N_alpha_second_quantized']),
-        'number_beta': of.FermionOperator(symmer_data['auxiliary_operators']['N_beta_second_quantized']),
-        'CCSD_generator': of.FermionOperator(symmer_data['auxiliary_operators']['CCSD_operator_second_quantized']),
         'n_qubits_full': symmer_data['n_qubits'],
         'n_particles': symmer_data['n_particles']['total'],
-        'fci_energy': symmer_data['calculated_properties']['FCI']['energy']
+        'number_alpha': of.FermionOperator(symmer_data['auxiliary_operators']['N_alpha_second_quantized']),
+        'number_beta': of.FermionOperator(symmer_data['auxiliary_operators']['N_beta_second_quantized']),
     }
+
+    # Optional fields — only present if the solver succeeded
+    fci_props = symmer_data['calculated_properties'].get('FCI', {})
+    if fci_props.get('energy') is not None:
+        mol_info['fci_energy'] = fci_props['energy']
+    fci_state_data = symmer_data['auxiliary_operators'].get('fci_state')
+    if fci_state_data:
+        mol_info['fci_state'] = QuantumState.from_dictionary(fci_state_data)
+    ccsd_state_data = symmer_data['auxiliary_operators'].get('ccsd_state')
+    if ccsd_state_data:
+        mol_info['ccsd_state'] = QuantumState.from_dictionary(ccsd_state_data)
+    ccsd_op_data = symmer_data['auxiliary_operators'].get('CCSD_operator_second_quantized')
+    if ccsd_op_data:
+        mol_info['CCSD_generator'] = of.FermionOperator(ccsd_op_data)
 
     return mol_info, symmer_data
 
@@ -263,7 +319,18 @@ def initialize_molecule(
 
 
 def get_geometry(molecule: str, bondlength: float) -> List[Tuple[str, Tuple[float, float, float]]]:
-    """Generate molecular geometry for common molecules."""
+    """Generate molecular geometry for common molecules.
+
+    Args:
+        molecule: Molecule identifier ("H2", "LiH", or "HeH+").
+        bondlength: Bond length in Angstroms.
+
+    Returns:
+        List of (atom, (x, y, z)) tuples.
+
+    Raises:
+        ValueError: If molecule is not in the supported set.
+    """
     geometries = {
         "H2": [
             ('H', (0.0, 0.0, 0.0)),
@@ -307,47 +374,71 @@ def _run_mp2(pyscf_scf, molecule, pyscf_data, verbose, multiplicity):
 
 
 def _run_ccsd(pyscf_scf, molecule, pyscf_data, verbose):
-    """Run CCSD calculation."""
-    pyscf_ccsd = cc.CCSD(pyscf_scf)
-    pyscf_ccsd.verbose = 0
-    pyscf_ccsd.run()
-    molecule.ccsd_energy = pyscf_ccsd.e_tot
-    pyscf_data['ccsd'] = pyscf_ccsd
+    """Run CCSD calculation. Returns None on failure with full error audit."""
+    try:
+        pyscf_ccsd = cc.CCSD(pyscf_scf)
+        pyscf_ccsd.verbose = 0
+        pyscf_ccsd.run()
+        molecule.ccsd_energy = pyscf_ccsd.e_tot
+        pyscf_data['ccsd'] = pyscf_ccsd
 
-    if verbose:
-        print(f'CCSD energy for {molecule.name} '
-              f'({molecule.n_electrons} electrons) is {molecule.ccsd_energy}')
+        if verbose:
+            print(f'CCSD energy for {molecule.name} '
+                  f'({molecule.n_electrons} electrons) is {molecule.ccsd_energy}')
 
-    return pyscf_ccsd
+        return pyscf_ccsd
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f'WARNING [AUDIT]: CCSD failed for {molecule.name}\n'
+              f'  Error: {type(e).__name__}: {e}\n'
+              f'  Traceback:\n{tb}')
+        molecule.ccsd_energy = None
+        return None
 
 
 def _run_cisd(pyscf_scf, molecule, pyscf_data, verbose):
-    """Run CISD calculation."""
-    pyscf_cisd = pyscf.ci.CISD(pyscf_scf)
-    pyscf_cisd.verbose = 0
-    pyscf_cisd.run()
-    molecule.cisd_energy = pyscf_cisd.e_tot
-    pyscf_data['cisd'] = pyscf_cisd
+    """Run CISD calculation. Returns None on failure with full error audit."""
+    try:
+        pyscf_cisd = pyscf.ci.CISD(pyscf_scf)
+        pyscf_cisd.verbose = 0
+        pyscf_cisd.run()
+        molecule.cisd_energy = pyscf_cisd.e_tot
+        pyscf_data['cisd'] = pyscf_cisd
 
-    if verbose:
-        print(f'CISD energy for {molecule.name} '
-              f'({molecule.n_electrons} electrons) is {molecule.cisd_energy}')
+        if verbose:
+            print(f'CISD energy for {molecule.name} '
+                  f'({molecule.n_electrons} electrons) is {molecule.cisd_energy}')
 
-    return pyscf_cisd
+        return pyscf_cisd
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f'WARNING [AUDIT]: CISD failed for {molecule.name}\n'
+              f'  Error: {type(e).__name__}: {e}\n'
+              f'  Traceback:\n{tb}')
+        molecule.cisd_energy = None
+        return None
 
 
 def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose):
-    """Run FCI calculation."""
-    pyscf_fci = fci.FCI(pyscf_molecule, pyscf_scf.mo_coeff)
-    pyscf_fci.verbose = 0
-    molecule.fci_energy, fcivec = pyscf_fci.kernel()
-    pyscf_data['fci'] = pyscf_fci
+    """Run FCI calculation. Returns (None, None) on failure with full error audit."""
+    try:
+        pyscf_fci = fci.FCI(pyscf_molecule, pyscf_scf.mo_coeff)
+        pyscf_fci.verbose = 0
+        molecule.fci_energy, fcivec = pyscf_fci.kernel()
+        pyscf_data['fci'] = pyscf_fci
 
-    if verbose:
-        print(f'FCI energy for {molecule.name} '
-              f'({molecule.n_electrons} electrons) is {molecule.fci_energy}')
+        if verbose:
+            print(f'FCI energy for {molecule.name} '
+                  f'({molecule.n_electrons} electrons) is {molecule.fci_energy}')
 
-    return pyscf_fci, fcivec
+        return pyscf_fci, fcivec
+    except Exception as e:
+        tb = traceback.format_exc()
+        print(f'WARNING [AUDIT]: FCI failed for {molecule.name}\n'
+              f'  Error: {type(e).__name__}: {e}\n'
+              f'  Traceback:\n{tb}')
+        molecule.fci_energy = None
+        return None, None
 
 
 def _convert_fci_state(fcivec, norb, n_alpha, n_beta):
@@ -444,34 +535,49 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
         'topgroup': pyscf_molecule.topgroup
     }
 
-    # Energies
-    mp2_energy = molecule.mp2_energy if molecule.mp2_energy is not None else float('nan')
+    # Energies — None means solver failed; record that explicitly for audit
+    def _energy_entry(energy, solver_obj):
+        if energy is None:
+            return {"energy": None, "converged": False}
+        if solver_obj is not None and hasattr(solver_obj, 'converged'):
+            converged = bool(solver_obj.converged)
+        else:
+            converged = solver_obj is not None
+        return {"energy": float(energy), "converged": converged}
+
     symmer_data['calculated_properties'] = {
         "HF": {"energy": float(molecule.hf_energy), "converged": bool(pyscf_scf.converged)},
-        "MP2": {"energy": float(mp2_energy), "converged": pyscf_mp2 is not None},
-        "CISD": {"energy": float(molecule.cisd_energy), "converged": bool(pyscf_cisd.converged)},
-        "CCSD": {"energy": float(molecule.ccsd_energy), "converged": bool(pyscf_ccsd.converged)},
-        "FCI": {"energy": float(molecule.fci_energy), "converged": bool(pyscf_fci.converged)}
+        "MP2": _energy_entry(molecule.mp2_energy, pyscf_mp2),
+        "CISD": _energy_entry(molecule.cisd_energy, pyscf_cisd),
+        "CCSD": _energy_entry(molecule.ccsd_energy, pyscf_ccsd),
+        "FCI": _energy_entry(molecule.fci_energy, pyscf_fci),
     }
 
-    # Auxiliary operators
+    # Auxiliary operators — always include number/spin operators (they depend only on HF)
     symmer_data['auxiliary_operators'] = {}
     symmer_data['auxiliary_operators']['number_operator'] = symmer_to_dict(operators['number_operator'])
     symmer_data['auxiliary_operators']['N_alpha'] = symmer_to_dict(operators['N_alpha'])
     symmer_data['auxiliary_operators']['N_beta'] = symmer_to_dict(operators['N_beta'])
     symmer_data['auxiliary_operators']['S^2_operator'] = symmer_to_dict(operators['S2'])
-    symmer_data['auxiliary_operators']['CCSD_operator'] = symmer_to_dict(symmer_ccsd_generator)
 
-    # Second quantized operators
+    # Second quantized operators (always available — depend on HF only)
     symmer_data['auxiliary_operators']['number_operator_second_quantized'] = str(operators['number_operator_of'])
     symmer_data['auxiliary_operators']['N_alpha_second_quantized'] = str(operators['N_alpha_of'])
     symmer_data['auxiliary_operators']['N_beta_second_quantized'] = str(operators['N_beta_of'])
     symmer_data['auxiliary_operators']['S^2_operator_second_quantized'] = str(operators['S2_of'])
-    symmer_data['auxiliary_operators']['CCSD_operator_second_quantized'] = str(ccsd_2nd)
 
-    # States
-    symmer_data['auxiliary_operators']['ccsd_state'] = symmer_to_dict(symmer_ccsd_state)
-    symmer_data['auxiliary_operators']['cisd_state'] = symmer_to_dict(symmer_cisd_state)
-    symmer_data['auxiliary_operators']['fci_state'] = symmer_to_dict(qml_fci_state)
+    # CCSD-dependent fields — only if CCSD succeeded
+    if symmer_ccsd_generator is not None:
+        symmer_data['auxiliary_operators']['CCSD_operator'] = symmer_to_dict(symmer_ccsd_generator)
+    if ccsd_2nd is not None:
+        symmer_data['auxiliary_operators']['CCSD_operator_second_quantized'] = str(ccsd_2nd)
+
+    # States — only if available
+    if symmer_ccsd_state is not None:
+        symmer_data['auxiliary_operators']['ccsd_state'] = symmer_to_dict(symmer_ccsd_state)
+    if symmer_cisd_state is not None:
+        symmer_data['auxiliary_operators']['cisd_state'] = symmer_to_dict(symmer_cisd_state)
+    if qml_fci_state is not None:
+        symmer_data['auxiliary_operators']['fci_state'] = symmer_to_dict(qml_fci_state)
 
     return symmer_data

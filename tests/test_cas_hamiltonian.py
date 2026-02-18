@@ -1,9 +1,14 @@
 """Tests for CAS Hamiltonian generation."""
 
+import json
+import os
+import tempfile
+
 import numpy as np
 import pytest
 from scipy.sparse.linalg import eigsh
 
+from symmer import PauliwordOp, QuantumState
 from symmerpyscf import generate_cas_qubit_hamiltonian
 
 # ── Reference data ──────────────────────────────────────────────────────────
@@ -18,9 +23,21 @@ N2_BASIS = "sto-3g"
 # ── Fixtures ────────────────────────────────────────────────────────────────
 
 @pytest.fixture(scope="module")
-def h2_cas():
-    """H2/STO-3G CAS(2,2) at R=0.735 A."""
+def h2_cas_full():
+    """H2/STO-3G CAS(2,2) at R=0.735 A — returns (cas_result, symmer_data)."""
     return generate_cas_qubit_hamiltonian(H2_GEOMETRY, H2_BASIS, ncas=2, nelecas=2)
+
+
+@pytest.fixture(scope="module")
+def h2_cas(h2_cas_full):
+    """H2 cas_result dict (backward-compat convenience)."""
+    return h2_cas_full[0]
+
+
+@pytest.fixture(scope="module")
+def h2_symmer_data(h2_cas_full):
+    """H2 symmer_data dict."""
+    return h2_cas_full[1]
 
 
 @pytest.fixture(scope="module")
@@ -28,9 +45,10 @@ def n2_cas_results():
     """N2/STO-3G CASCI results for multiple active spaces at R=1.1 A."""
     results = {}
     for ncas, nelecas in [(4, 2), (6, 6), (10, 14)]:
-        results[(ncas, nelecas)] = generate_cas_qubit_hamiltonian(
+        cas_result, _ = generate_cas_qubit_hamiltonian(
             N2_GEOMETRY, N2_BASIS, ncas, nelecas
         )
+        results[(ncas, nelecas)] = cas_result
     return results
 
 
@@ -53,8 +71,16 @@ EXPECTED_KEYS = {
 }
 
 
+def test_return_type(h2_cas_full):
+    """generate_cas_qubit_hamiltonian returns a (cas_result, symmer_data) tuple."""
+    assert isinstance(h2_cas_full, tuple)
+    assert len(h2_cas_full) == 2
+    assert isinstance(h2_cas_full[0], dict)
+    assert isinstance(h2_cas_full[1], dict)
+
+
 def test_return_keys(h2_cas):
-    """All expected keys are present in the returned dict."""
+    """All expected keys are present in the cas_result dict."""
     assert set(h2_cas.keys()) == EXPECTED_KEYS
 
 
@@ -71,10 +97,9 @@ def test_h2_hermiticity(h2_cas):
 
 
 def test_h2_eigenvalue_consistency(h2_cas):
-    """min(eig(H_cas)) + e_core == e_casci to 1e-8 (H2)."""
+    """min(eig(H_cas)) == e_casci to 1e-8 (H2, e_core is included in H_cas)."""
     e_min = _min_eigenvalue(h2_cas["H_cas"])
-    total = e_min + h2_cas["e_core"]
-    assert abs(total - h2_cas["e_casci"]) < 1e-8
+    assert abs(e_min - h2_cas["e_casci"]) < 1e-8
 
 
 def test_h2_energy_ordering(h2_cas):
@@ -97,24 +122,113 @@ def test_h2_state_dimension(h2_cas):
 
 def test_mp2_natorbs_flag():
     """use_mp2_natorbs=False runs without error."""
-    result = generate_cas_qubit_hamiltonian(
+    result, _ = generate_cas_qubit_hamiltonian(
         H2_GEOMETRY, H2_BASIS, ncas=2, nelecas=2, use_mp2_natorbs=False
     )
     assert "H_cas" in result
-    # Self-consistency still holds
+    # Self-consistency: min(eig(H_cas)) == e_casci
     e_min = _min_eigenvalue(result["H_cas"])
-    assert abs(e_min + result["e_core"] - result["e_casci"]) < 1e-8
+    assert abs(e_min - result["e_casci"]) < 1e-8
 
 
 def test_nelecas_tuple_vs_int():
     """nelecas=6 and nelecas=(3,3) give identical results for CAS(6,6)."""
-    result_int = generate_cas_qubit_hamiltonian(
+    result_int, _ = generate_cas_qubit_hamiltonian(
         N2_GEOMETRY, N2_BASIS, ncas=6, nelecas=6
     )
-    result_tuple = generate_cas_qubit_hamiltonian(
+    result_tuple, _ = generate_cas_qubit_hamiltonian(
         N2_GEOMETRY, N2_BASIS, ncas=6, nelecas=(3, 3)
     )
     assert abs(result_int["e_casci"] - result_tuple["e_casci"]) < 1e-10
+
+
+# ── Symmer-data format tests (H2, fast) ────────────────────────────────────
+
+EXPECTED_SYMMER_KEYS = {
+    "H", "H_second_quantized", "qubit_encoding", "geometry", "basis",
+    "charge", "spin", "hf_array", "hf_state", "n_particles", "n_qubits",
+    "calculated_properties", "auxiliary_operators", "cas_metadata",
+}
+
+EXPECTED_AUX_KEYS = {
+    "number_operator", "N_alpha", "N_beta", "S^2_operator", "fci_state",
+    "number_operator_second_quantized", "N_alpha_second_quantized",
+    "N_beta_second_quantized", "S^2_operator_second_quantized",
+}
+
+
+def test_symmer_data_keys(h2_symmer_data):
+    """symmer_data contains all expected top-level keys."""
+    assert set(h2_symmer_data.keys()) == EXPECTED_SYMMER_KEYS
+
+
+def test_symmer_data_aux_keys(h2_symmer_data):
+    """auxiliary_operators contains all expected keys."""
+    assert set(h2_symmer_data["auxiliary_operators"].keys()) == EXPECTED_AUX_KEYS
+
+
+def test_symmer_data_n_qubits(h2_symmer_data):
+    """n_qubits in symmer_data matches H2 CAS(2,2) = 4."""
+    assert h2_symmer_data["n_qubits"] == 4
+
+
+def test_symmer_data_hf_array(h2_symmer_data):
+    """HF array is correct for H2 CAS(2,2): 2 electrons in 4 qubits."""
+    assert h2_symmer_data["hf_array"] == [1, 1, 0, 0]
+
+
+def test_symmer_data_n_particles(h2_symmer_data):
+    """Particle counts are correct for H2 CAS(2,2)."""
+    np_ = h2_symmer_data["n_particles"]
+    assert np_["total"] == 2
+    assert np_["alpha"] == 1
+    assert np_["beta"] == 1
+
+
+def test_symmer_data_cas_metadata(h2_symmer_data):
+    """CAS metadata is correct."""
+    meta = h2_symmer_data["cas_metadata"]
+    assert meta["ncas"] == 2
+    assert meta["nelecas"] == [1, 1]
+    assert isinstance(meta["e_core"], float)
+    assert meta["use_mp2_natorbs"] is True
+
+
+def test_symmer_data_h_roundtrip(h2_symmer_data):
+    """H dict round-trips through PauliwordOp.from_dictionary."""
+    H_reloaded = PauliwordOp.from_dictionary(h2_symmer_data["H"])
+    assert H_reloaded.n_qubits == h2_symmer_data["n_qubits"]
+    assert H_reloaded.n_terms > 0
+
+
+def test_symmer_data_hf_state_roundtrip(h2_symmer_data):
+    """HF state dict round-trips through QuantumState.from_dictionary."""
+    hf = QuantumState.from_dictionary(h2_symmer_data["hf_state"])
+    vec = hf.to_sparse_matrix.toarray().flatten()
+    assert abs(np.linalg.norm(vec) - 1.0) < 1e-10
+
+
+def test_save_file_json_roundtrip():
+    """save_file writes valid JSON that round-trips."""
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+        tmp_path = f.name
+    try:
+        _, symmer_data = generate_cas_qubit_hamiltonian(
+            H2_GEOMETRY, H2_BASIS, ncas=2, nelecas=2, save_file=tmp_path
+        )
+        with open(tmp_path, 'r', encoding='utf-8') as f:
+            loaded = json.load(f)
+
+        # Key structure preserved
+        assert set(loaded.keys()) == EXPECTED_SYMMER_KEYS
+        # H can be reloaded
+        H_reloaded = PauliwordOp.from_dictionary(loaded["H"])
+        assert H_reloaded.n_qubits == loaded["n_qubits"]
+        # Eigenvalue matches
+        e_min = _min_eigenvalue(H_reloaded)
+        assert abs(e_min - loaded["calculated_properties"]["CASCI"]["energy"]) < 1e-8
+    finally:
+        os.unlink(tmp_path)
 
 
 # ── Slow tests (N2 multi-active-space, ~7 min) ─────────────────────────────
@@ -153,12 +267,11 @@ def test_state_dimension(n2_cas_results):
 
 @pytest.mark.slow
 def test_eigenvalue_consistency(n2_cas_results):
-    """min(eig(H_cas)) + e_core == e_casci to 1e-8."""
+    """min(eig(H_cas)) == e_casci to 1e-8 (e_core included in H_cas)."""
     for (ncas, nelecas), result in n2_cas_results.items():
         e_min = _min_eigenvalue(result["H_cas"])
-        total = e_min + result["e_core"]
-        assert abs(total - result["e_casci"]) < 1e-8, (
-            f"CAS({ncas},{nelecas}): {total} vs {result['e_casci']}"
+        assert abs(e_min - result["e_casci"]) < 1e-8, (
+            f"CAS({ncas},{nelecas}): {e_min} vs {result['e_casci']}"
         )
 
 
@@ -201,12 +314,12 @@ def test_multiple_bond_lengths():
     """N2 at 1.5 A and 2.0 A — self-consistency checks."""
     for bond_length in [1.5, 2.0]:
         geom = [("N", (0, 0, 0)), ("N", (0, 0, bond_length))]
-        result = generate_cas_qubit_hamiltonian(geom, N2_BASIS, ncas=6, nelecas=6)
+        result, _ = generate_cas_qubit_hamiltonian(geom, N2_BASIS, ncas=6, nelecas=6)
 
-        # Self-consistency: min(eig) + e_core == e_casci
+        # Self-consistency: min(eig(H_cas)) == e_casci
         e_min = _min_eigenvalue(result["H_cas"])
-        assert abs(e_min + result["e_core"] - result["e_casci"]) < 1e-8, (
-            f"R={bond_length}: {e_min + result['e_core']} vs {result['e_casci']}"
+        assert abs(e_min - result["e_casci"]) < 1e-8, (
+            f"R={bond_length}: {e_min} vs {result['e_casci']}"
         )
 
         # Energy ordering
