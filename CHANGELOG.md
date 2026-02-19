@@ -17,8 +17,14 @@ All notable changes to this project will be documented in this file.
   orbital degeneracy from symmetry-adapted SCF, the pipeline now re-runs
   SCF without symmetry to break the degeneracy, then computes MP2.
 
+- **Large-system OOM**: State vector conversion (FCI, CCSD, CISD) now skips
+  systems with >30 qubits to avoid out-of-memory (2^n entries). Previously,
+  ClNa (36 qubits) was killed by the OS during state conversion.
+
 ### Added
 - Orbital degeneracy detection at HOMO/LUMO boundary
 - FCI spin metadata in output JSON (`spin_squared`, `multiplicity`, `spin_constrained`)
 - Warning audit trail in MP2 and FCI output entries
 - `orbital_degeneracy` field in output JSON
+- Validation suite: 51 molecules across 4 tiers (6–36 qubits), comparing
+  energies and Hamiltonian coefficients against symmer reference JSONs

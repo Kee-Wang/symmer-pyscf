@@ -116,18 +116,25 @@ def generate_symmer_data(
     _errors = {}
 
     # Convert FCI state to Symmer format
+    # Skip for large systems: state vector has 2^n_qubits entries, infeasible
+    # above ~30 qubits (~16 GB memory for complex128).
+    _MAX_QUBITS_FOR_STATE = 30
     qml_fci_state = None
     if pyscf_fci is not None and fcivec is not None:
-        try:
-            norb = mf.mo_coeff.shape[1]
-            n_alpha, n_beta = pyscf_molecule.nelec
-            qml_fci_state = _convert_fci_state(fcivec, norb, n_alpha, n_beta)
-        except Exception as e:
-            tb = traceback.format_exc()
-            print(f'WARNING [AUDIT]: FCI state conversion failed\n'
-                  f'  Error: {type(e).__name__}: {e}\n'
-                  f'  Traceback:\n{tb}')
-            _errors['fci_state_conversion'] = f'{type(e).__name__}: {e}'
+        if molecule.n_qubits > _MAX_QUBITS_FOR_STATE:
+            print(f'WARNING [AUDIT]: Skipping FCI state conversion '
+                  f'(n_qubits={molecule.n_qubits} > {_MAX_QUBITS_FOR_STATE})')
+        else:
+            try:
+                norb = mf.mo_coeff.shape[1]
+                n_alpha, n_beta = pyscf_molecule.nelec
+                qml_fci_state = _convert_fci_state(fcivec, norb, n_alpha, n_beta)
+            except Exception as e:
+                tb = traceback.format_exc()
+                print(f'WARNING [AUDIT]: FCI state conversion failed\n'
+                      f'  Error: {type(e).__name__}: {e}\n'
+                      f'  Traceback:\n{tb}')
+                _errors['fci_state_conversion'] = f'{type(e).__name__}: {e}'
 
     # Generate CCSD operator in second quantization
     symmer_ccsd_generator = None
@@ -161,28 +168,36 @@ def generate_symmer_data(
     # Import CCSD state
     symmer_ccsd_state = None
     if pyscf_ccsd is not None:
-        try:
-            qml_ccsd_state = qml.qchem.import_state(pyscf_ccsd).reshape(-1, 1)
-            symmer_ccsd_state = QuantumState.from_array(qml_ccsd_state)
-        except Exception as e:
-            tb = traceback.format_exc()
-            print(f'WARNING [AUDIT]: CCSD state import failed\n'
-                  f'  Error: {type(e).__name__}: {e}\n'
-                  f'  Traceback:\n{tb}')
-            _errors['ccsd_state_import'] = f'{type(e).__name__}: {e}'
+        if molecule.n_qubits > _MAX_QUBITS_FOR_STATE:
+            print(f'WARNING [AUDIT]: Skipping CCSD state import '
+                  f'(n_qubits={molecule.n_qubits} > {_MAX_QUBITS_FOR_STATE})')
+        else:
+            try:
+                qml_ccsd_state = qml.qchem.import_state(pyscf_ccsd).reshape(-1, 1)
+                symmer_ccsd_state = QuantumState.from_array(qml_ccsd_state)
+            except Exception as e:
+                tb = traceback.format_exc()
+                print(f'WARNING [AUDIT]: CCSD state import failed\n'
+                      f'  Error: {type(e).__name__}: {e}\n'
+                      f'  Traceback:\n{tb}')
+                _errors['ccsd_state_import'] = f'{type(e).__name__}: {e}'
 
     # Import CISD state
     symmer_cisd_state = None
     if pyscf_cisd is not None:
-        try:
-            qml_cisd_state = qml.qchem.import_state(pyscf_cisd).reshape(-1, 1)
-            symmer_cisd_state = QuantumState.from_array(qml_cisd_state)
-        except Exception as e:
-            tb = traceback.format_exc()
-            print(f'WARNING [AUDIT]: CISD state import failed\n'
-                  f'  Error: {type(e).__name__}: {e}\n'
-                  f'  Traceback:\n{tb}')
-            _errors['cisd_state_import'] = f'{type(e).__name__}: {e}'
+        if molecule.n_qubits > _MAX_QUBITS_FOR_STATE:
+            print(f'WARNING [AUDIT]: Skipping CISD state import '
+                  f'(n_qubits={molecule.n_qubits} > {_MAX_QUBITS_FOR_STATE})')
+        else:
+            try:
+                qml_cisd_state = qml.qchem.import_state(pyscf_cisd).reshape(-1, 1)
+                symmer_cisd_state = QuantumState.from_array(qml_cisd_state)
+            except Exception as e:
+                tb = traceback.format_exc()
+                print(f'WARNING [AUDIT]: CISD state import failed\n'
+                      f'  Error: {type(e).__name__}: {e}\n'
+                      f'  Traceback:\n{tb}')
+                _errors['cisd_state_import'] = f'{type(e).__name__}: {e}'
 
     # HF state
     hf_state = [0] * molecule.n_qubits

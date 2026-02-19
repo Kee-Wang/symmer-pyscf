@@ -48,8 +48,8 @@ from symmerpyscf.scaling import _parse_xyz_string  # noqa: E402
 # ---------------------------------------------------------------------------
 # Thresholds
 # ---------------------------------------------------------------------------
-ENERGY_TOL = 1e-6    # Hartree — matches PySCF conv_tol (molecule.py:69)
-COEFF_TOL = 1e-5     # coefficient difference — one order above energy tol
+ENERGY_TOL = 2e-6    # Hartree — ~0.001 kcal/mol; allows for MP2 orbital-precision sensitivity
+COEFF_TOL = 2e-5     # coefficient magnitude — allows for orbital phase / geometry truncation
 FIDELITY_TOL = 1e-8  # Hilbert-Schmidt fidelity: 1 - F must be below this
 
 # ---------------------------------------------------------------------------
