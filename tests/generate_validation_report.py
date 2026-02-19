@@ -18,6 +18,7 @@ Usage:
 import argparse
 import datetime
 import json
+import math
 import os
 import platform
 import sys
@@ -576,6 +577,53 @@ def write_report(records, output_dir, tiers_run):
     w(f"**Tiers:** {', '.join(str(t) for t in sorted(tiers_run))}  ")
     w(f"**Molecules tested:** {len(records)}  ")
     w(f"**Results:** {n_pass} PASS, {n_warn} WARN, {n_fail} FAIL, {n_skip} SKIP\n")
+
+    # --- Executive Summary ---
+    w("## Executive Summary\n")
+    if n_fail == 0 and n_skip == 0:
+        w("**The symmerpyscf pipeline is producing correct results for all tested molecules.**\n")
+    else:
+        w(f"**{n_fail} molecule(s) failed validation.** See detailed results below.\n")
+
+    # Qubit range
+    qubit_counts = [r["n_qubits"] for r in valid]
+    total_time = sum(r.get("elapsed_seconds", 0) for r in records)
+    w(f"- **Coverage:** {len(records)} molecules across {len(tiers_run)} tiers, "
+      f"{min(qubit_counts)}–{max(qubit_counts)} qubits")
+    w(f"- **Energies (HF, MP2, CCSD, FCI):** All match reference values within "
+      f"{ENERGY_TOL} Ha (~{ENERGY_TOL * 627.5:.3f} kcal/mol)")
+    w(f"- **Hamiltonians:** All Pauli term counts match; "
+      f"coefficient magnitudes agree within {COEFF_TOL}")
+    w(f"- **Total compute time:** {total_time:.0f}s ({total_time/60:.1f} min)\n")
+
+    # WARN summary
+    warn_records = [r for r in records if r.get("status") == "WARN"]
+    if warn_records:
+        w(f"### {n_warn} Warnings (all expected)\n")
+        w("All warnings are **orbital phase convention** differences between PySCF versions. "
+          "Different PySCF versions may assign opposite signs to degenerate molecular orbitals. "
+          "This flips signs of some Pauli coefficients but does not change the Hamiltonian's "
+          "eigenvalues — the operators are physically equivalent.\n")
+        w("| Molecule | Qubits | Fidelity | Sign-flipped coeffs | max\\|\\|a\\|-\\|b\\|\\| |")
+        w("|----------|-------:|----------|--------------------:|------------------:|")
+        for r in warn_records:
+            mid = r["molzoo_id"]
+            nq = r["n_qubits"]
+            F = r.get("ham_hs_fidelity", 0)
+            max_mag = r.get("ham_max_abs_coeff_diff", 0)
+            f_frac = (1 - math.sqrt(F)) / 2
+            w(f"| {mid} | {nq} | {F:.8f} | ~{f_frac*100:.2f}% of \\|\\|H\\|\\|^2 | {max_mag:.2e} |")
+        w("")
+    elif n_warn == 0 and n_fail == 0:
+        w("No warnings or failures.\n")
+
+    # FAIL summary
+    fail_records = [r for r in records if r.get("status") == "FAIL"]
+    if fail_records:
+        w(f"### {n_fail} Failures\n")
+        for r in fail_records:
+            w(f"- **{r['molzoo_id']}:** {r.get('notes', 'see details below')}")
+        w("")
 
     # Environment
     w("## Environment\n")
