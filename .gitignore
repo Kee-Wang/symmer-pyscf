@@ -119,3 +119,7 @@ temp/
 docs/_build/
 docs/_static/
 docs/_templates/
+
+# Generated validation output (lives on validation-reports branch)
+tests/validation_output/
+tests/validation_report_tier1.txt
