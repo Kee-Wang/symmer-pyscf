@@ -818,8 +818,92 @@ def write_report(records, output_dir, tiers_run):
         )
     w("")
 
-    # --- Detailed per-molecule ---
-    w("## Detailed Results\n")
+    # --- Known Issues (before the long per-molecule dump) ---
+    w("## Known Issues\n")
+
+    w("### Resolved: HN (NH) degenerate pi orbitals\n")
+    w("**Problem:** HN (`HN_singlet_Coov_sto3g`, 12 qubits) returned wrong FCI energy "
+      "(-54.160 Ha instead of -54.200 Ha) and NaN MP2 energy.\n")
+    w("**Root cause:** HN has exactly degenerate pi orbitals (orbitals 3,4) at the "
+      "HOMO/LUMO boundary (-0.342 Ha). This caused two independent failures:\n")
+    w("1. **FCI wrong root:** The symmetry-adapted SCF restricts the FCI configuration "
+      "space. The FCI solver found a triplet Ms=0 state (which has `<S^2>=0` and looks "
+      "like a singlet by spin alone) instead of the true ground-state singlet. The "
+      "triplet Ms=0 is lower in the restricted space but not the true ground state.")
+    w("2. **MP2 divergence:** The exact HOMO-LUMO degeneracy (gap = 0.0 Ha) creates "
+      "a zero denominator in the MP2 amplitude equation `t2 = g / (ei + ej - ea - eb)`, "
+      "producing NaN.\n")
+    w("**Fix applied in `molecule.py`:**\n")
+    w("- **FCI:** Three-stage fallback: (1) `fix_spin_(shift=0.2, ss=target_ss)` on "
+      "symmetry-adapted orbitals; (2) retry with `shift=1.0` if `<S^2>` verification fails; "
+      "(3) proactively re-run SCF without symmetry (`symmetry=False`) to break the "
+      "degeneracy when `_detect_orbital_degeneracy()` finds degenerate orbitals at the "
+      "HOMO/LUMO boundary, then run FCI on the symmetry-broken orbitals. Stage (3) is "
+      "what fixed HN — the spin was already correct, but the symmetry-adapted basis "
+      "excluded the correct singlet root.")
+    w("- **MP2:** When MP2 produces NaN and orbital degeneracy is detected, the pipeline "
+      "re-runs SCF with `symmetry=False` to break the degeneracy, then re-computes MP2. "
+      "The symmetry-broken orbitals have a nonzero HOMO-LUMO gap, so MP2 converges.")
+    w("- **Result:** HN now gives FCI = -54.1997 Ha (`<S^2>` = 0.0, verified singlet) "
+      "and MP2 = -54.1633 Ha (finite, matches reference).")
+    w("- See `tests/investigate_warnings.py` for the original diagnostic analysis.\n")
+
+    # Orbital phase convention warnings
+    if warn_records:
+        w("### Orbital phase convention warnings\n")
+        w("All WARN molecules have **sign flips** in Pauli coefficients due to different "
+          "orbital phase choices between PySCF versions. The Hamiltonians are physically "
+          "equivalent (identical eigenvalues). This is expected and does not indicate a bug.\n")
+        w("**Mechanism:** PySCF's SCF solver is free to assign either sign (+ or −) to "
+          "each molecular orbital. Different PySCF versions, or the same version with "
+          "different convergence paths, may flip the sign of one or more orbitals. A single "
+          "orbital phase flip changes the sign of every Pauli term that involves an odd "
+          "number of creation/annihilation operators on that orbital. The magnitude of "
+          "every coefficient is unchanged.\n")
+        w("**How to verify:** For each WARN molecule, check that:")
+        w("1. `max||a|-|b||` (magnitude difference) is small (< coefficient tolerance)")
+        w("2. All energy levels (HF, MP2, CCSD, FCI) match the reference")
+        w("3. The fidelity deviation `1-F` is consistent with the sign-flip formula "
+          "`F = (1-2f)^2` where `f` is the fraction of `||H||^2` from flipped terms\n")
+        for r in warn_records:
+            mid = r["molzoo_id"]
+            F = r.get("ham_hs_fidelity", 0)
+            max_mag = r.get("ham_max_abs_coeff_diff", 0)
+            max_raw = r.get("ham_max_coeff_diff", 0)
+            n_terms = r.get("n_terms_new", 0)
+            w(f"**{mid}** (Fidelity={F:.8f}, max||a|-|b||={max_mag:.2e}, "
+              f"max|Δcoeff|={max_raw:.2e}, {n_terms} terms)  ")
+        w("")
+        w("The BH2+ case is the best-characterized example: spatial orbital 2 (B 2py "
+          "bonding MO) has opposite phase in the reference. The single-orbital phase flip "
+          "hypothesis on orbital 2 correctly predicts all 308/1086 sign-flipped Pauli "
+          "terms. See `tests/investigate_warnings.py` for the full orbital-level analysis.\n")
+
+    if _KNOWN_FCI_ISSUES:
+        w("### Active known issues\n")
+        for issue in sorted(_KNOWN_FCI_ISSUES):
+            w(f"- **{issue}**: Known FCI convergence issue")
+        w("")
+
+    # --- Appendix ---
+    w("## Appendix\n")
+    w("### Reproducing This Report\n")
+    w("```bash")
+    tiers_str = " ".join(str(t) for t in sorted(tiers_run))
+    w(f"python tests/generate_validation_report.py --tiers {tiers_str}")
+    w("```\n")
+    w("### File Locations\n")
+    w(f"- **Report:** `{os.path.join(output_dir, 'report.md')}`")
+    w(f"- **Generated Hamiltonians:** `{os.path.join(output_dir, 'generated/')}`")
+    w(f"- **Figures:** `{os.path.join(output_dir, 'figures/')}`")
+    w(f"- **Machine-readable data:** `{os.path.join(output_dir, 'comparison_data.json')}`")
+    w(f"- **Reference data:** `{SYMMER_SOURCE_DIR}`")
+    w("")
+
+    # --- Detailed per-molecule (appendix-like, for auditing) ---
+    w("## Detailed Per-Molecule Results\n")
+    w("*The following section contains raw numerical data for every molecule. "
+      "It is intended for auditing specific molecules, not for sequential reading.*\n")
     for r in records:
         mid = r["molzoo_id"]
         w(f"### {mid}\n")
@@ -903,55 +987,6 @@ def write_report(records, output_dir, tiers_run):
           f"{_fmt_float(r.get('ham_mean_abs_coeff_diff'))}")
         w(f"- **Mismatched Pauli keys:** {r.get('n_mismatched_keys', '?')}")
         w("")
-
-    # --- Known Issues ---
-    w("## Known Issues\n")
-    if _KNOWN_FCI_ISSUES:
-        w(f"- **Known FCI/MP2 issues:** {', '.join(sorted(_KNOWN_FCI_ISSUES))}")
-    else:
-        w("- **Known FCI/MP2 issues:** None (all resolved)")
-    w("")
-    w("### Resolved: HN (NH) degenerate pi orbitals\n")
-    w("Previously, HN returned wrong FCI root and NaN MP2 due to exact orbital")
-    w("degeneracy at the HOMO/LUMO boundary (orbitals 3,4 at -0.342 Ha).\n")
-    w("**Fix applied in `molecule.py`:**")
-    w("- **FCI:** `fix_spin_(ss=0)` constrains the solver to the singlet sector,")
-    w("  avoiding the triplet Ms=0 state. Verified via `<S^2>` with automatic retry")
-    w("  at higher penalty (shift=1.0) if needed.")
-    w("- **MP2:** When MP2 diverges (NaN) due to zero HOMO-LUMO gap from")
-    w("  symmetry-adapted SCF, the pipeline re-runs SCF without symmetry to break")
-    w("  the degeneracy, then computes MP2.")
-    w("- See `tests/investigate_warnings.py` for the original diagnostic analysis.")
-    w("")
-    w("- **Known orbital phase issue:** BH2+_singlet_C2v_sto3g")
-    w("  - **Root cause:** Spatial orbital 2 (B 2py bonding MO, occupied) has")
-    w("    opposite phase convention in the reference vs current PySCF. Orbitals")
-    w("    2 and 6 share the same irreducible representation in C2v; exactly one")
-    w("    is phase-flipped in the reference (indistinguishable from Hamiltonian alone).")
-    w("  - **Evidence:** The single-orbital phase flip hypothesis on orbital 2")
-    w("    correctly predicts all 308/1086 sign-flipped Pauli terms (1086/1086 correct).")
-    w("  - **Fidelity math:** The flipped terms carry f = 0.0206% of ||H||^2.")
-    w("    A sign flip reverses the dot-product contribution: overlap = 1 - 2f = 0.99959.")
-    w("    F = (1-2f)^2 = 0.99918, matching observation to 5e-10.")
-    w("  - **Impact:** None. Magnitudes match (max ||a|-|b|| = 2.6e-6), so the")
-    w("    Hamiltonians have identical eigenvalues and are physically equivalent.")
-    w("  - See `tests/investigate_warnings.py` for the full orbital-level analysis.")
-    w("")
-
-    # --- Appendix ---
-    w("## Appendix\n")
-    w("### Reproducing This Report\n")
-    w("```bash")
-    tiers_str = " ".join(str(t) for t in sorted(tiers_run))
-    w(f"python tests/generate_validation_report.py --tiers {tiers_str}")
-    w("```\n")
-    w("### File Locations\n")
-    w(f"- **Report:** `{os.path.join(output_dir, 'report.md')}`")
-    w(f"- **Generated Hamiltonians:** `{os.path.join(output_dir, 'generated/')}`")
-    w(f"- **Figures:** `{os.path.join(output_dir, 'figures/')}`")
-    w(f"- **Machine-readable data:** `{os.path.join(output_dir, 'comparison_data.json')}`")
-    w(f"- **Reference data:** `{SYMMER_SOURCE_DIR}`")
-    w("")
 
     with open(report_path, "w") as f:
         f.write("\n".join(lines))

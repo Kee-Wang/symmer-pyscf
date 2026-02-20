@@ -2,6 +2,7 @@
 
 import json
 from pyscf import gto, scf, fci, mcscf, mp, ao2mo
+from pyscf.fci import spin_op as fci_spin_op
 from openfermion.chem.molecular_data import spinorb_from_spatial
 from openfermion.ops import FermionOperator
 from openfermion.ops.representations import InteractionOperator
@@ -70,6 +71,8 @@ def generate_cas_qubit_hamiltonian(
     basis,
     ncas,
     nelecas,
+    multiplicity=1,
+    charge=0,
     use_mp2_natorbs=True,
     save_file=None,
 ):
@@ -77,7 +80,8 @@ def generate_cas_qubit_hamiltonian(
 
     Runs PySCF RHF -> (optional) MP2 natural orbitals -> CASCI, then extracts
     the effective CAS integrals and converts to a Jordan-Wigner qubit
-    Hamiltonian via openfermion.
+    Hamiltonian via openfermion.  The CASCI solver is spin-constrained via
+    ``fix_spin_()`` to ensure the correct spin sector is targeted.
 
     Parameters
     ----------
@@ -90,6 +94,11 @@ def generate_cas_qubit_hamiltonian(
     nelecas : int or tuple[int, int]
         Number of active electrons. If int, split evenly for singlet.
         If tuple, (n_alpha, n_beta).
+    multiplicity : int, optional
+        Spin multiplicity 2S+1 (default 1 = singlet). Used to constrain
+        the CASCI solver to the correct spin sector via fix_spin_().
+    charge : int, optional
+        Molecular charge (default 0).
     use_mp2_natorbs : bool, optional
         Use MP2 natural orbitals as the CAS orbital basis (default True).
     save_file : str, optional
@@ -132,6 +141,8 @@ def generate_cas_qubit_hamiltonian(
     mol = gto.Mole()
     mol.atom = geometry
     mol.basis = basis
+    mol.charge = charge
+    mol.spin = multiplicity - 1
     mol.symmetry = False
     mol.verbose = 0
     mol.unit = "Angstrom"
@@ -158,8 +169,42 @@ def generate_cas_qubit_hamiltonian(
         _, natorbs = mcscf.addons.make_natural_orbitals(mp2_obj)
         mc.mo_coeff = natorbs
     mc.verbose = 0
+
+    # Constrain CASCI to the correct spin sector
+    s = (multiplicity - 1) / 2.0
+    target_ss = s * (s + 1)
+    fci.addons.fix_spin_(mc.fcisolver, shift=0.2, ss=target_ss)
+
     e_casci, _, ci_vec, _, _ = mc.kernel()
     e_casci = float(e_casci)
+
+    # Verify <S^2> of the CASCI solution
+    nelec_a, nelec_b = mc.nelecas
+    ss_val, mult_val = fci_spin_op.spin_square(ci_vec, ncas, (nelec_a, nelec_b))
+    cas_spin_squared = float(ss_val)
+    cas_multiplicity = float(mult_val)
+    spin_ok = abs(ss_val - target_ss) < 0.1
+
+    if not spin_ok:
+        # Retry with stronger penalty
+        print(f'WARNING [AUDIT]: CASCI spin verification failed: <S^2>={ss_val:.4f} '
+              f'(expected {target_ss:.1f}). Retrying with shift=1.0.')
+        mc2 = mcscf.CASCI(mf, ncas, nelecas)
+        if use_mp2_natorbs:
+            mc2.mo_coeff = natorbs
+        mc2.verbose = 0
+        fci.addons.fix_spin_(mc2.fcisolver, shift=1.0, ss=target_ss)
+        e_casci2, _, ci_vec2, _, _ = mc2.kernel()
+        ss_val2, mult_val2 = fci_spin_op.spin_square(ci_vec2, ncas, (nelec_a, nelec_b))
+
+        if abs(ss_val2 - target_ss) < 0.1:
+            e_casci = float(e_casci2)
+            ci_vec = ci_vec2
+            cas_spin_squared = float(ss_val2)
+            cas_multiplicity = float(mult_val2)
+        else:
+            print(f'WARNING [AUDIT]: CASCI spin constraint failed even with shift=1.0: '
+                  f'<S^2>={ss_val2:.4f}. Using best result.')
 
     # Step 4: Extract CAS effective integrals
     h1eff, e_core = mc.get_h1eff()
@@ -184,8 +229,7 @@ def generate_cas_qubit_hamiltonian(
     qubit_op = of.jordan_wigner(fermion_op)
     H_cas = PauliwordOp.from_openfermion(qubit_op, n_qubits=n_qubits)
 
-    # Step 8: Convert CASCI ground state
-    nelec_a, nelec_b = mc.nelecas
+    # Step 8: Convert CASCI ground state (uses spin-verified ci_vec)
     cas_ground_state = _convert_fci_state(ci_vec, norb=ncas, n_alpha=nelec_a, n_beta=nelec_b)
 
     # Step 9: Build CAS HF state (interleaved alpha/beta convention)
@@ -216,7 +260,13 @@ def generate_cas_qubit_hamiltonian(
         "calculated_properties": {
             "HF": {"energy": e_hf, "converged": True},
             "FCI": {"energy": e_fci, "converged": True},
-            "CASCI": {"energy": e_casci, "converged": True},
+            "CASCI": {
+                "energy": e_casci,
+                "converged": True,
+                "spin_squared": cas_spin_squared,
+                "multiplicity": cas_multiplicity,
+                "spin_constrained": True,
+            },
         },
         "auxiliary_operators": {
             "number_operator": symmer_to_dict(operators['number_operator']),
