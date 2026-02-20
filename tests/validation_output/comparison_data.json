@@ -1,0 +1,2552 @@
+[
+  {
+    "molzoo_id": "H3+_singlet_D3h_sto3g",
+    "json_filename": "H3+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "D3h",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.1255902909906581,
+    "n_qubits": 6,
+    "n_electrons": 2,
+    "point_group_detected": "D3h",
+    "HF": {
+      "ref": -1.2463419007866505,
+      "new": -1.2463419007866519,
+      "diff": -1.3322676295501878e-15
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -1.265840772763086,
+      "new": -1.2658407727630874,
+      "diff": -1.3322676295501878e-15
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -1.274412865842824,
+      "new": -1.2744128658428238,
+      "diff": 2.220446049250313e-16
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -1.2744126997266851,
+      "new": -1.2744126997268543,
+      "diff": -1.6919798895287386e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 52,
+    "n_terms_new": 52,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0000000000000002,
+    "ham_raw_overlap": 1.0000000000000002,
+    "ham_max_coeff_diff": 3.9968028886505635e-15,
+    "ham_max_abs_coeff_diff": 3.9968028886505635e-15,
+    "ham_mean_abs_coeff_diff": 1.840141287209244e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2_singlet_Dooh_631g",
+    "json_filename": "H2_6-31G_SINGLET_JW.json",
+    "basis": "6-31g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.05467625003075227,
+    "n_qubits": 8,
+    "n_electrons": 2,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -1.1265505333266996,
+      "new": -1.1265505333266996,
+      "diff": 0.0
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -1.144038111810194,
+      "new": -1.144038111810194,
+      "diff": 0.0
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -1.1516896448389498,
+      "new": -1.1516896448389498,
+      "diff": 0.0
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -1.1516894969527627,
+      "new": -1.1516894969527618,
+      "diff": 8.881784197001252e-16
+    },
+    "fci_converged": true,
+    "n_terms_ref": 185,
+    "n_terms_new": 185,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999998,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 1.5543122344752192e-15,
+    "ham_max_abs_coeff_diff": 1.5543122344752192e-15,
+    "ham_mean_abs_coeff_diff": 1.152887845250532e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2_singlet_Dooh_321g",
+    "json_filename": "H2_3-21G_SINGLET_JW.json",
+    "basis": "3-21g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.054750624985899776,
+    "n_qubits": 8,
+    "n_electrons": 2,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -1.1227992820505093,
+      "new": -1.1227992820505093,
+      "diff": 0.0
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -1.1402046074167058,
+      "new": -1.1402046074167058,
+      "diff": 0.0
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -1.1478775892264317,
+      "new": -1.1478775892264321,
+      "diff": -4.440892098500626e-16
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -1.1478774014540045,
+      "new": -1.147877401454004,
+      "diff": 4.440892098500626e-16
+    },
+    "fci_converged": true,
+    "n_terms_ref": 185,
+    "n_terms_new": 185,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999996,
+    "ham_raw_overlap": 0.9999999999999999,
+    "ham_max_coeff_diff": 1.7763568394002505e-15,
+    "ham_max_abs_coeff_diff": 1.7763568394002505e-15,
+    "ham_mean_abs_coeff_diff": 1.2268714572800295e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H4_singlet_D4h_sto3g",
+    "json_filename": "H4_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "D4h",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.05899995903018862,
+    "n_qubits": 8,
+    "n_electrons": 4,
+    "point_group_detected": "D4h",
+    "HF": {
+      "ref": -1.333349777097312,
+      "new": -1.3333497770973124,
+      "diff": -4.440892098500626e-16
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -1.6161399127016058,
+      "new": -1.6161399127016058,
+      "diff": 0.0
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -1.8261847366338488,
+      "new": -1.8261847366338044,
+      "diff": 4.440892098500626e-14
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -1.86439214542294,
+      "new": -1.8643921454229408,
+      "diff": -8.881784197001252e-16
+    },
+    "fci_converged": true,
+    "n_terms_ref": 105,
+    "n_terms_new": 105,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999998,
+    "ham_raw_overlap": 0.9999999999999999,
+    "ham_max_coeff_diff": 2.6645352591003757e-15,
+    "ham_max_abs_coeff_diff": 2.6645352591003757e-15,
+    "ham_mean_abs_coeff_diff": 5.207577920472518e-17,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HHe+_singlet_Coov_321g",
+    "json_filename": "HeH+_3-21G_SINGLET_JW.json",
+    "basis": "3-21g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.08176158397691324,
+    "n_qubits": 8,
+    "n_electrons": 2,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -2.8874377987654425,
+      "new": -2.8874377987654283,
+      "diff": 1.4210854715202004e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -2.905324367468883,
+      "new": -2.9053243689516464,
+      "diff": -1.4827632455194362e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -2.910948260719652,
+      "new": -2.9109482607196586,
+      "diff": -6.661338147750939e-15
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -2.9109482623296703,
+      "new": -2.9109482623296667,
+      "diff": 3.552713678800501e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 361,
+    "n_terms_new": 361,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999989,
+    "ham_raw_overlap": 0.9999999999999993,
+    "ham_max_coeff_diff": 1.3584364093668921e-08,
+    "ham_max_abs_coeff_diff": 1.3584364093668921e-08,
+    "ham_mean_abs_coeff_diff": 1.8248261708556287e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "Be_singlet_Kh_sto3g",
+    "json_filename": "Be_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Kh",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.06674937502248213,
+    "n_qubits": 10,
+    "n_electrons": 4,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -14.351880476202012,
+      "new": -14.351880476202023,
+      "diff": -1.0658141036401503e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -14.376238850841505,
+      "new": -14.376238850841515,
+      "diff": -1.0658141036401503e-14
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -14.40365075175297,
+      "new": -14.403650751752462,
+      "diff": 5.080380560684716e-13
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -14.403655108067653,
+      "new": -14.40365510806767,
+      "diff": -1.5987211554602254e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 156,
+    "n_terms_new": 156,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 1.4210854715202004e-14,
+    "ham_max_abs_coeff_diff": 1.4210854715202004e-14,
+    "ham_mean_abs_coeff_diff": 2.229008466407378e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "B+_singlet_Kh_sto3g",
+    "json_filename": "B+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "Kh",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.05843475001165643,
+    "n_qubits": 10,
+    "n_electrons": 4,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -23.948470366408024,
+      "new": -23.94847036640804,
+      "diff": -1.4210854715202004e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -23.978501348619957,
+      "new": -23.97850134861997,
+      "diff": -1.4210854715202004e-14
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -24.0098108223178,
+      "new": -24.009810822320034,
+      "diff": -2.234656903965515e-12
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -24.009814668969852,
+      "new": -24.009814668969888,
+      "diff": -3.552713678800501e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 156,
+    "n_terms_new": 156,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0000000000000002,
+    "ham_raw_overlap": 1.0000000000000002,
+    "ham_max_coeff_diff": 2.842170943040401e-14,
+    "ham_max_abs_coeff_diff": 2.842170943040401e-14,
+    "ham_mean_abs_coeff_diff": 3.7998228139489407e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "B_doublet_Kh_sto3g",
+    "json_filename": "B_STO-3G_DOUBLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 2,
+    "point_group_input": "Kh",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.05925370898330584,
+    "n_qubits": 10,
+    "n_electrons": 5,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -24.148988598853634,
+      "new": -24.14898859885365,
+      "diff": -1.4210854715202004e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -24.168082790571013,
+      "new": -24.168082790571027,
+      "diff": -1.4210854715202004e-14
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -24.189258146520437,
+      "new": -24.189258146129806,
+      "diff": 3.906315271251515e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -24.189264917100353,
+      "new": -24.189264917100385,
+      "diff": -3.197442310920451e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 156,
+    "n_terms_new": 156,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 2.842170943040401e-14,
+    "ham_max_abs_coeff_diff": 2.842170943040401e-14,
+    "ham_mean_abs_coeff_diff": 3.7600131341797294e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "Li_doublet_Kh_sto3g",
+    "json_filename": "Li_STO-3G_DOUBLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 2,
+    "point_group_input": "Kh",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.05928670900175348,
+    "n_qubits": 10,
+    "n_electrons": 3,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -7.315525981281089,
+      "new": -7.315525981281084,
+      "diff": 5.329070518200751e-15
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -7.3157818073723115,
+      "new": -7.315781807372306,
+      "diff": 5.329070518200751e-15
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -7.31583655285046,
+      "new": -7.315836552850454,
+      "diff": 5.329070518200751e-15
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -7.315836552850642,
+      "new": -7.315836552850639,
+      "diff": 2.6645352591003757e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 156,
+    "n_terms_new": 156,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999996,
+    "ham_raw_overlap": 0.9999999999999998,
+    "ham_max_coeff_diff": 1.865174681370263e-14,
+    "ham_max_abs_coeff_diff": 1.865174681370263e-14,
+    "ham_mean_abs_coeff_diff": 1.9197606467476666e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "C_triplet_Kh_sto3g",
+    "json_filename": "C_STO-3G_TRIPLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 3,
+    "point_group_input": "Kh",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.06480229197768494,
+    "n_qubits": 10,
+    "n_electrons": 6,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -37.198392563731566,
+      "new": -37.19839256373159,
+      "diff": -2.1316282072803006e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -37.20839433894788,
+      "new": -37.208394338947905,
+      "diff": -2.1316282072803006e-14
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -37.21873043572407,
+      "new": -37.218730435724154,
+      "diff": -8.526512829121202e-14
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -37.21873355063645,
+      "new": -37.21873355063646,
+      "diff": -7.105427357601002e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 156,
+    "n_terms_new": 156,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999997,
+    "ham_raw_overlap": 0.9999999999999998,
+    "ham_max_coeff_diff": 2.842170943040401e-14,
+    "ham_max_abs_coeff_diff": 2.842170943040401e-14,
+    "ham_mean_abs_coeff_diff": 5.214400848429772e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "O_triplet_C1_sto3g",
+    "json_filename": "O_STO-3G_TRIPLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 3,
+    "point_group_input": "C1",
+    "symmetry_subgroup_used": "C1",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.05207183305174112,
+    "n_qubits": 10,
+    "n_electrons": 8,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -73.80415023325587,
+      "new": -73.80415023325594,
+      "diff": -7.105427357601002e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -73.80415023325587,
+      "new": -73.80415023325594,
+      "diff": -7.105427357601002e-14
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -73.80415023325587,
+      "new": -73.80415023325594,
+      "diff": -7.105427357601002e-14
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": null,
+      "new": -73.80415023325594,
+      "diff": null
+    },
+    "fci_converged": true,
+    "n_terms_ref": 156,
+    "n_terms_new": 156,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999999,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 1.2789769243681803e-13,
+    "ham_max_abs_coeff_diff": 1.2789769243681803e-13,
+    "ham_mean_abs_coeff_diff": 1.3176003201603584e-15,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": "FCI: no reference energy in symmer JSON"
+  },
+  {
+    "molzoo_id": "N_quartet_Kh_sto3g",
+    "json_filename": "N_STO-3G_QUARTET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 4,
+    "point_group_input": "Kh",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.05148779199225828,
+    "n_qubits": 10,
+    "n_electrons": 7,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -53.71901016259394,
+      "new": -53.71901016259393,
+      "diff": 7.105427357601002e-15
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -53.71901016259394,
+      "new": -53.71901016259393,
+      "diff": 7.105427357601002e-15
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -53.71901016259394,
+      "new": -53.71901016259393,
+      "diff": 7.105427357601002e-15
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -53.71901016259394,
+      "new": -53.71901016259393,
+      "diff": 7.105427357601002e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 156,
+    "n_terms_new": 156,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 3.552713678800501e-14,
+    "ham_max_abs_coeff_diff": 3.552713678800501e-14,
+    "ham_mean_abs_coeff_diff": 7.19787922285274e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HLi_singlet_Coov_sto3g",
+    "json_filename": "LiH_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.15365241601830348,
+    "n_qubits": 12,
+    "n_electrons": 4,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -7.863115321486984,
+      "new": -7.863115321556827,
+      "diff": -6.984279821153905e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -7.875625276066912,
+      "new": -7.875625324118497,
+      "diff": -4.805158493326189e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -7.882752312997115,
+      "new": -7.882752312991424,
+      "diff": 5.6914473134384025e-12
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -7.882762230971955,
+      "new": -7.882762230971951,
+      "diff": 3.552713678800501e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999081,
+    "ham_raw_overlap": 0.999999999999954,
+    "ham_max_coeff_diff": 2.865039291574667e-07,
+    "ham_max_abs_coeff_diff": 2.865039291574667e-07,
+    "ham_mean_abs_coeff_diff": 2.7980805257354535e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "BH_singlet_Coov_sto3g",
+    "json_filename": "BH_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.1650010829907842,
+    "n_qubits": 12,
+    "n_electrons": 6,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -24.75298596035701,
+      "new": -24.752985960357,
+      "diff": 7.105427357601002e-15
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -24.782087694082374,
+      "new": -24.782087695385606,
+      "diff": -1.3032313006533514e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -24.809347131821752,
+      "new": -24.80934713185153,
+      "diff": -2.97788460557058e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -24.809507022475458,
+      "new": -24.809507022475483,
+      "diff": -2.4868995751603507e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999994,
+    "ham_raw_overlap": 0.9999999999999998,
+    "ham_max_coeff_diff": 1.4678230308290408e-08,
+    "ham_max_abs_coeff_diff": 1.4678230308290408e-08,
+    "ham_mean_abs_coeff_diff": 1.169822174215423e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "BeH+_singlet_Coov_sto3g",
+    "json_filename": "BeH+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.15281349996803328,
+    "n_qubits": 12,
+    "n_electrons": 4,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -14.664583099315161,
+      "new": -14.664583099318284,
+      "diff": -3.1228353236656403e-12
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -14.678652305460648,
+      "new": -14.678652349764155,
+      "diff": -4.430350664108573e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -14.685813805848726,
+      "new": -14.685813805837487,
+      "diff": 1.1239009722885385e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -14.685828174532839,
+      "new": -14.685828174532842,
+      "diff": -3.552713678800501e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999845,
+    "ham_raw_overlap": 0.9999999999999921,
+    "ham_max_coeff_diff": 2.372264243516442e-07,
+    "ham_max_abs_coeff_diff": 2.372264243516442e-07,
+    "ham_mean_abs_coeff_diff": 2.6185768331490737e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "CH+_singlet_Coov_sto3g",
+    "json_filename": "CH+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.15854033298091963,
+    "n_qubits": 12,
+    "n_electrons": 6,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -37.45552608032592,
+      "new": -37.45552608032596,
+      "diff": -4.263256414560601e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -37.48984117644713,
+      "new": -37.489841173900494,
+      "diff": 2.5466349029557023e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -37.518360242193324,
+      "new": -37.51836024210395,
+      "diff": 8.93720653039054e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -37.51859722876795,
+      "new": -37.51859722876797,
+      "diff": -2.1316282072803006e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999994,
+    "ham_raw_overlap": 0.9999999999999998,
+    "ham_max_coeff_diff": 3.2800888061235156e-08,
+    "ham_max_abs_coeff_diff": 3.2800888061235156e-08,
+    "ham_mean_abs_coeff_diff": 2.3840462607663396e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "FH_singlet_Coov_sto3g",
+    "json_filename": "HF_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.1435870419954881,
+    "n_qubits": 12,
+    "n_electrons": 10,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -98.57101106797644,
+      "new": -98.57101106797653,
+      "diff": -8.526512829121202e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -98.59198165670844,
+      "new": -98.59198165603857,
+      "diff": 6.69871269565192e-10
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -98.6033017738983,
+      "new": -98.60330177389834,
+      "diff": -4.263256414560601e-14
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -98.6033017772588,
+      "new": -98.60330177725885,
+      "diff": -4.263256414560601e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999998,
+    "ham_raw_overlap": 0.9999999999999998,
+    "ham_max_coeff_diff": 4.307862611074853e-08,
+    "ham_max_abs_coeff_diff": 4.307862611074853e-08,
+    "ham_mean_abs_coeff_diff": 1.787442054213518e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HN_singlet_Coov_sto3g",
+    "json_filename": "NH_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.2031147499801591,
+    "n_qubits": 12,
+    "n_electrons": 8,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -54.13590125665986,
+      "new": -54.13590125680961,
+      "diff": -1.4975398698879872e-10
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -54.163257065683524,
+      "new": -54.163257146142,
+      "diff": -8.045847721405153e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -54.19972892746417,
+      "new": -54.19972892746263,
+      "diff": 1.5418777365994174e-12
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -54.19972893029692,
+      "new": -54.199728930295905,
+      "diff": 1.0160761121369433e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999378,
+    "ham_raw_overlap": 0.9999999999999689,
+    "ham_max_coeff_diff": 2.4944485198519217e-06,
+    "ham_max_abs_coeff_diff": 2.4944485198519217e-06,
+    "ham_mean_abs_coeff_diff": 1.640252921089172e-07,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HO-_singlet_Coov_sto3g",
+    "json_filename": "OH-_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": -1,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.1433665409567766,
+    "n_qubits": 12,
+    "n_electrons": 10,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -74.06501712356514,
+      "new": -74.06501712356517,
+      "diff": -2.842170943040401e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -74.08461689360641,
+      "new": -74.08461689467772,
+      "diff": -1.0713137044149335e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -74.09428590814731,
+      "new": -74.09428590814731,
+      "diff": 0.0
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -74.0942859083499,
+      "new": -74.0942859083499,
+      "diff": 0.0
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999984,
+    "ham_raw_overlap": 0.9999999999999993,
+    "ham_max_coeff_diff": 2.4529457270938693e-08,
+    "ham_max_abs_coeff_diff": 2.4529457270938693e-08,
+    "ham_mean_abs_coeff_diff": 9.815075406254735e-10,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HNe+_singlet_Coov_sto3g",
+    "json_filename": "NeH+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.13914366601966321,
+    "n_qubits": 12,
+    "n_electrons": 10,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -126.60458691468915,
+      "new": -126.60458691468926,
+      "diff": -1.1368683772161603e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -126.6045878530174,
+      "new": -126.60458785283772,
+      "diff": 1.7968204701901414e-10
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -126.60458716382549,
+      "new": -126.60458716382556,
+      "diff": -7.105427357601002e-14
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -126.60458716382408,
+      "new": -126.60458716382422,
+      "diff": -1.4210854715202004e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 631,
+    "n_terms_new": 631,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999969,
+    "ham_raw_overlap": 0.9999999999999984,
+    "ham_max_coeff_diff": 2.2121940475156032e-06,
+    "ham_max_abs_coeff_diff": 2.2121940475156032e-06,
+    "ham_mean_abs_coeff_diff": 3.13557734742744e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H6_singlet_Dooh_STO3G",
+    "json_filename": "H6_STO-3G_SINGLET_JW.json",
+    "basis": "STO-3G",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.214767541969195,
+    "n_qubits": 12,
+    "n_electrons": 6,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -3.135532213961021,
+      "new": -3.1355322139604445,
+      "diff": 5.764277943853813e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -3.1981380584576766,
+      "new": -3.1981380625219304,
+      "diff": -4.06425382237785e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -3.2356770838036844,
+      "new": -3.235677083873984,
+      "diff": -7.029976600847476e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -3.236066279891948,
+      "new": -3.2360662798917694,
+      "diff": 1.7852386235972517e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 919,
+    "n_terms_new": 919,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999931,
+    "ham_raw_overlap": 0.9999999999999966,
+    "ham_max_coeff_diff": 1.8907156163622263e-08,
+    "ham_max_abs_coeff_diff": 1.8907156163622263e-08,
+    "ham_mean_abs_coeff_diff": 2.1315178250256776e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2_singlet_Dooh_6311g",
+    "json_filename": "H2_6-311G_SINGLET_JW.json",
+    "basis": "6-311g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.17964779201429337,
+    "n_qubits": 12,
+    "n_electrons": 2,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -1.1278101198850345,
+      "new": -1.1278101198850257,
+      "diff": 8.881784197001252e-15
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -1.1457762780773562,
+      "new": -1.14577627797485,
+      "diff": 1.0250622572982593e-10
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -1.153492044593366,
+      "new": -1.1534920445936532,
+      "diff": -2.871036741680655e-13
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -1.1534920427900932,
+      "new": -1.153492042790094,
+      "diff": -8.881784197001252e-16
+    },
+    "fci_converged": true,
+    "n_terms_ref": 919,
+    "n_terms_new": 919,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 3.1830024310730565e-09,
+    "ham_max_abs_coeff_diff": 3.1830024310730565e-09,
+    "ham_mean_abs_coeff_diff": 1.1953753695581204e-10,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HHe+_singlet_Coov_6311g",
+    "json_filename": "HeH+_6-311G_SINGLET_JW.json",
+    "basis": "6-311g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.4091931250295602,
+    "n_qubits": 12,
+    "n_electrons": 2,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -2.916501127185939,
+      "new": -2.916501127185693,
+      "diff": 2.460254222569347e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -2.9344875544156888,
+      "new": -2.9344875494009965,
+      "diff": 5.014692217031325e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -2.9395919630075698,
+      "new": -2.9395919630075618,
+      "diff": 7.993605777301127e-15
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -2.9395919621348257,
+      "new": -2.939591962134821,
+      "diff": 4.440892098500626e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 1819,
+    "n_terms_new": 1819,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999984,
+    "ham_raw_overlap": 0.9999999999999991,
+    "ham_max_coeff_diff": 9.02122722079568e-08,
+    "ham_max_abs_coeff_diff": 9.02122722079568e-08,
+    "ham_mean_abs_coeff_diff": 5.700336944896329e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H3+_singlet_D3h_321g",
+    "json_filename": "H3+_3-21G_SINGLET_JW.json",
+    "basis": "3-21g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "D3h",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.3396248330245726,
+    "n_qubits": 12,
+    "n_electrons": 2,
+    "point_group_detected": "D3h",
+    "HF": {
+      "ref": -1.2699720686928238,
+      "new": -1.2699720686928246,
+      "diff": -8.881784197001252e-16
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -1.2922004475955668,
+      "new": -1.2922004475955677,
+      "diff": -8.881784197001252e-16
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -1.2998949243335731,
+      "new": -1.299894924333574,
+      "diff": -8.881784197001252e-16
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -1.2998948869873546,
+      "new": -1.299894886987356,
+      "diff": -1.3322676295501878e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 799,
+    "n_terms_new": 799,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0000000000000004,
+    "ham_raw_overlap": 1.0000000000000002,
+    "ham_max_coeff_diff": 8.881784197001252e-15,
+    "ham_max_abs_coeff_diff": 8.881784197001252e-15,
+    "ham_mean_abs_coeff_diff": 1.4675700901012113e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2O_singlet_C2v_sto3g",
+    "json_filename": "H2O_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "C2v",
+    "symmetry_subgroup_used": "C2v",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.4597197499824688,
+    "n_qubits": 14,
+    "n_electrons": 10,
+    "point_group_detected": "C2v",
+    "HF": {
+      "ref": -74.96203967838719,
+      "new": -74.96203967840412,
+      "diff": -1.693933882052079e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -74.99708201366194,
+      "new": -74.99708203769855,
+      "diff": -2.4036609147515264e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -75.01073164269069,
+      "new": -75.01073164244143,
+      "diff": 2.4925839170464315e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -75.01084664816908,
+      "new": -75.01084664816722,
+      "diff": 1.8616219676914625e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 1086,
+    "n_terms_new": 1086,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999999,
+    "ham_raw_overlap": 0.9999999999999998,
+    "ham_max_coeff_diff": 4.4971141585636865e-07,
+    "ham_max_abs_coeff_diff": 4.4971141585636865e-07,
+    "ham_mean_abs_coeff_diff": 1.7055002109021045e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "BeH2_singlet_Dooh_sto3g",
+    "json_filename": "BeH2_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.2894344169762917,
+    "n_qubits": 14,
+    "n_electrons": 6,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -15.561352807666308,
+      "new": -15.561352807665534,
+      "diff": 7.744915819785092e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -15.583725038009458,
+      "new": -15.583725042127272,
+      "diff": -4.117813645621027e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -15.594378365854412,
+      "new": -15.594378366012606,
+      "diff": -1.581934583327893e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -15.59474614566028,
+      "new": -15.59474614566012,
+      "diff": 1.5987211554602254e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 666,
+    "n_terms_new": 666,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999983,
+    "ham_raw_overlap": 0.9999999999999992,
+    "ham_max_coeff_diff": 4.818505029702269e-08,
+    "ham_max_abs_coeff_diff": 4.818505029702269e-08,
+    "ham_mean_abs_coeff_diff": 2.6992362264499532e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "BH2+_singlet_C2v_sto3g",
+    "json_filename": "BH2+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "C2v",
+    "symmetry_subgroup_used": "C2v",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.3667457500123419,
+    "n_qubits": 14,
+    "n_electrons": 6,
+    "point_group_detected": "C2v",
+    "HF": {
+      "ref": -25.129615287129006,
+      "new": -25.129615287031193,
+      "diff": 9.781331300473539e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -25.158052542534595,
+      "new": -25.158052936396746,
+      "diff": -3.938621517818319e-07
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -25.171484940122923,
+      "new": -25.171484935042596,
+      "diff": 5.080327269979534e-09
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -25.171958144260305,
+      "new": -25.171958144256767,
+      "diff": 3.538502824085299e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 1086,
+    "n_terms_new": 1086,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9991777888797514,
+    "ham_raw_overlap": 0.9995888099012271,
+    "ham_max_coeff_diff": 0.10549325379216427,
+    "ham_max_abs_coeff_diff": 2.6326841903213938e-06,
+    "ham_mean_abs_coeff_diff": 1.6499514879184363e-07,
+    "n_mismatched_keys": 0,
+    "status": "WARN",
+    "notes": "Fidelity=0.99917779 (orbital phase convention vs reference; Hamiltonians physically equivalent); max||a|-|b||=2.63e-06"
+  },
+  {
+    "molzoo_id": "CH2_triplet_C2v_sto3g",
+    "json_filename": "CH2_STO-3G_TRIPLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": 0,
+    "multiplicity": 3,
+    "point_group_input": "C2v",
+    "symmetry_subgroup_used": "C2v",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.2530707910191268,
+    "n_qubits": 14,
+    "n_electrons": 8,
+    "point_group_detected": "C2v",
+    "HF": {
+      "ref": -38.43165399327664,
+      "new": -38.431653993502486,
+      "diff": -2.2584600856134784e-10
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -38.45583922292079,
+      "new": -38.45583924033058,
+      "diff": -1.740979627129491e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -38.473758415524166,
+      "new": -38.47375841289906,
+      "diff": 2.6251072426930477e-09
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -38.47392829419217,
+      "new": -38.473928294192454,
+      "diff": -2.8421709430404007e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 1086,
+    "n_terms_new": 1086,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.999999999999958,
+    "ham_raw_overlap": 0.999999999999979,
+    "ham_max_coeff_diff": 1.180451075943889e-06,
+    "ham_max_abs_coeff_diff": 1.180451075943889e-06,
+    "ham_mean_abs_coeff_diff": 7.816384311048851e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2N-_singlet_C2v_sto3g",
+    "json_filename": "NH2-_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 1,
+    "charge": -1,
+    "multiplicity": 1,
+    "point_group_input": "C2v",
+    "symmetry_subgroup_used": "C2v",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.2609087500022724,
+    "n_qubits": 14,
+    "n_electrons": 10,
+    "point_group_detected": "C2v",
+    "HF": {
+      "ref": -54.58182779600131,
+      "new": -54.58182779600093,
+      "diff": 3.836930773104541e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -54.61516548083666,
+      "new": -54.615165476308185,
+      "diff": 4.528473596110416e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -54.62963306460293,
+      "new": -54.62963306457104,
+      "diff": 3.1889157980913296e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -54.629778458817995,
+      "new": -54.62977845881635,
+      "diff": 1.6484591469634324e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 1086,
+    "n_terms_new": 1086,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0000000000000004,
+    "ham_raw_overlap": 1.0000000000000002,
+    "ham_max_coeff_diff": 2.3738650431481823e-07,
+    "ham_max_abs_coeff_diff": 2.3738650431481823e-07,
+    "ham_mean_abs_coeff_diff": 1.0248402712204719e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H3O+_singlet_C3v_sto3g",
+    "json_filename": "H3O+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 2,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "C3v",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.7733304580324329,
+    "n_qubits": 16,
+    "n_electrons": 10,
+    "point_group_detected": "C3v",
+    "HF": {
+      "ref": -75.33043942712243,
+      "new": -75.33043942712251,
+      "diff": -8.526512829121202e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -75.3790282158785,
+      "new": -75.37902821636419,
+      "diff": -4.856843816014589e-10
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -75.39319203208925,
+      "new": -75.39319203205896,
+      "diff": 3.028333139809547e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -75.3936259005811,
+      "new": -75.39362590058099,
+      "diff": 1.1368683772161603e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 2469,
+    "n_terms_new": 2469,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999991,
+    "ham_raw_overlap": 0.9999999999999994,
+    "ham_max_coeff_diff": 3.8869054183598983e-08,
+    "ham_max_abs_coeff_diff": 3.8869054183598983e-08,
+    "ham_mean_abs_coeff_diff": 5.24500948241025e-10,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H3N_singlet_Cs_sto3g",
+    "json_filename": "NH3_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 2,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Cs",
+    "symmetry_subgroup_used": "Cs",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.7188431249815039,
+    "n_qubits": 16,
+    "n_electrons": 10,
+    "point_group_detected": "Cs",
+    "HF": {
+      "ref": -55.451874081486494,
+      "new": -55.45187408148651,
+      "diff": -1.4210854715202004e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -55.50706579751341,
+      "new": -55.5070657950197,
+      "diff": 2.49371367999629e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -55.52795155430011,
+      "new": -55.52795155434372,
+      "diff": -4.361311312095495e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -55.52820256239538,
+      "new": -55.528202562394156,
+      "diff": 1.2221335055073723e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 2377,
+    "n_terms_new": 2377,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9996549407939245,
+    "ham_raw_overlap": 0.9998274555111619,
+    "ham_max_coeff_diff": 0.17698220769511824,
+    "ham_max_abs_coeff_diff": 5.299872656017168e-08,
+    "ham_mean_abs_coeff_diff": 1.0003649496000964e-09,
+    "n_mismatched_keys": 0,
+    "status": "WARN",
+    "notes": "Fidelity=0.99965494 (orbital phase convention vs reference; Hamiltonians physically equivalent); max||a|-|b||=5.30e-08"
+  },
+  {
+    "molzoo_id": "CH4_singlet_Td_sto3g",
+    "json_filename": "CH4_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 2,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Td",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.856072333001066,
+    "n_qubits": 18,
+    "n_electrons": 10,
+    "point_group_detected": "Td",
+    "HF": {
+      "ref": -39.72518725776475,
+      "new": -39.725187257765214,
+      "diff": -4.618527782440651e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -39.78339779310938,
+      "new": -39.783397792296775,
+      "diff": 8.12605094324681e-10
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -39.80672995242044,
+      "new": -39.80672995244504,
+      "diff": -2.459898951201467e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -39.80698697524708,
+      "new": -39.80698697524606,
+      "diff": 1.0160761121369433e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 2212,
+    "n_terms_new": 2212,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999991,
+    "ham_raw_overlap": 0.9999999999999997,
+    "ham_max_coeff_diff": 1.476512508369332e-07,
+    "ham_max_abs_coeff_diff": 1.476512508369332e-07,
+    "ham_mean_abs_coeff_diff": 5.1024861892637294e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H4N+_singlet_Td_sto3g",
+    "json_filename": "NH4+_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 2,
+    "charge": 1,
+    "multiplicity": 1,
+    "point_group_input": "Td",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.8041737080202438,
+    "n_qubits": 18,
+    "n_electrons": 10,
+    "point_group_detected": "Td",
+    "HF": {
+      "ref": -55.86884546795547,
+      "new": -55.86884546795872,
+      "diff": -3.254285729781259e-12
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -55.93262435761734,
+      "new": -55.93262434989542,
+      "diff": 7.721922656855895e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -55.95254116828747,
+      "new": -55.95254116895035,
+      "diff": -6.628795290453127e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -55.95288620661347,
+      "new": -55.952886206614906,
+      "diff": -1.4352963262354024e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 2212,
+    "n_terms_new": 2212,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 3.6222704780097814e-08,
+    "ham_max_abs_coeff_diff": 3.6222704780097814e-08,
+    "ham_mean_abs_coeff_diff": 1.7522842702275684e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "Mg_singlet_Kh_sto3g",
+    "json_filename": "Mg_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 2,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Kh",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.48943033296382055,
+    "n_qubits": 18,
+    "n_electrons": 12,
+    "point_group_detected": "SO3",
+    "HF": {
+      "ref": -197.00735389983288,
+      "new": -197.00735389983305,
+      "diff": -1.7053025658242404e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -197.0451011894626,
+      "new": -197.04510118946277,
+      "diff": -1.7053025658242404e-13
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -197.06016534883187,
+      "new": -197.06016534883202,
+      "diff": -1.4210854715202004e-13
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -197.0610953088149,
+      "new": -197.06109530881508,
+      "diff": -1.7053025658242404e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 1492,
+    "n_terms_new": 1492,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 8.526512829121202e-14,
+    "ham_max_abs_coeff_diff": 8.526512829121202e-14,
+    "ham_mean_abs_coeff_diff": 2.980341696969036e-16,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "CO_singlet_Coov_sto3g",
+    "json_filename": "CO_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 1.898396457952913,
+    "n_qubits": 20,
+    "n_electrons": 14,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -111.2254495141139,
+      "new": -111.22544951403657,
+      "diff": 7.73354713601293e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -111.35803374506601,
+      "new": -111.3580319546268,
+      "diff": 1.7904392137779723e-06
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -111.35944716808484,
+      "new": -111.35944741051955,
+      "diff": -2.4243470875262574e-07
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -111.36801382948556,
+      "new": -111.36801382948548,
+      "diff": 8.526512829121202e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 4427,
+    "n_terms_new": 4427,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999998902,
+    "ham_raw_overlap": 0.9999999999999452,
+    "ham_max_coeff_diff": 5.763433979122379e-06,
+    "ham_max_abs_coeff_diff": 5.763433979122379e-06,
+    "ham_mean_abs_coeff_diff": 1.2147159962087247e-07,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "F2_singlet_Dooh_sto3g",
+    "json_filename": "F2_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.5488433749997057,
+    "n_qubits": 20,
+    "n_electrons": 18,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -195.97354107487382,
+      "new": -195.9735410748738,
+      "diff": 2.842170943040401e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -196.02276913058355,
+      "new": -196.02276912018786,
+      "diff": 1.0395694971521152e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -196.05016033964986,
+      "new": -196.05016033965137,
+      "diff": -1.5063505998114124e-12
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -196.05016034219028,
+      "new": -196.05016034219037,
+      "diff": -8.526512829121202e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 2239,
+    "n_terms_new": 2239,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 4.402040991793865e-08,
+    "ham_max_abs_coeff_diff": 4.402040991793865e-08,
+    "ham_mean_abs_coeff_diff": 2.030500146534416e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "N2_singlet_Dooh_sto3g",
+    "json_filename": "N2_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 1.2113832909963094,
+    "n_qubits": 20,
+    "n_electrons": 14,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -107.47571670120183,
+      "new": -107.47571670120183,
+      "diff": 0.0
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -107.68434406963407,
+      "new": -107.6843440699071,
+      "diff": -2.730331516431761e-10
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -107.6685567766348,
+      "new": -107.66855677662342,
+      "diff": 1.1382894626876805e-11
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -107.67514943314342,
+      "new": -107.67514943315143,
+      "diff": -8.01492205937393e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 2239,
+    "n_terms_new": 2239,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999992,
+    "ham_raw_overlap": 0.9999999999999997,
+    "ham_max_coeff_diff": 1.1593427745593132e-09,
+    "ham_max_abs_coeff_diff": 1.1593427745593132e-09,
+    "ham_mean_abs_coeff_diff": 2.6768852667793553e-11,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "ClH_singlet_Coov_sto3g",
+    "json_filename": "HCl_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 1.0725439580273814,
+    "n_qubits": 20,
+    "n_electrons": 18,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -455.1354456708121,
+      "new": -455.13544567081215,
+      "diff": -5.684341886080802e-14
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -455.14970643642,
+      "new": -455.14970643812006,
+      "diff": -1.7000729712890461e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -455.1570668271786,
+      "new": -455.1570668271789,
+      "diff": -2.8421709430404007e-13
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -455.15706679314883,
+      "new": -455.15706679314934,
+      "diff": -5.115907697472721e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 4427,
+    "n_terms_new": 4427,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999998,
+    "ham_raw_overlap": 0.9999999999999998,
+    "ham_max_coeff_diff": 1.3306822260750195e-07,
+    "ham_max_abs_coeff_diff": 1.3306822260750195e-07,
+    "ham_mean_abs_coeff_diff": 1.3568538640575973e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HNa_singlet_Coov_sto3g",
+    "json_filename": "NaH_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 2.077932249987498,
+    "n_qubits": 20,
+    "n_electrons": 12,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -160.31570271427782,
+      "new": -160.31570271408123,
+      "diff": 1.9659296413010452e-10
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -160.36489360468232,
+      "new": -160.36489360240333,
+      "diff": 2.2789947706769453e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -160.3693380908108,
+      "new": -160.36933807624328,
+      "diff": 1.4567518746844144e-08
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -160.371226829888,
+      "new": -160.37122682988806,
+      "diff": -5.684341886080802e-14
+    },
+    "fci_converged": true,
+    "n_terms_ref": 4427,
+    "n_terms_new": 4427,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999947,
+    "ham_raw_overlap": 0.9999999999999972,
+    "ham_max_coeff_diff": 1.5754548978313965e-06,
+    "ham_max_abs_coeff_diff": 1.5754548978313965e-06,
+    "ham_mean_abs_coeff_diff": 4.031713252411152e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "O2_triplet_Dooh_sto3g",
+    "json_filename": "O2_STO-3G_TRIPLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 3,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 0.653584208979737,
+    "n_qubits": 20,
+    "n_electrons": 16,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -147.63216699068218,
+      "new": -147.63216699068238,
+      "diff": -1.9895196601282805e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -147.728885707083,
+      "new": -147.72888570707428,
+      "diff": 8.72546479513403e-12
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -147.7419187874445,
+      "new": -147.74191878744531,
+      "diff": -8.242295734817162e-13
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -147.74403543362618,
+      "new": -147.74403543362678,
+      "diff": -5.968558980384842e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 2239,
+    "n_terms_new": 2239,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0,
+    "ham_raw_overlap": 1.0,
+    "ham_max_coeff_diff": 2.5031227091076858e-11,
+    "ham_max_abs_coeff_diff": 2.5031227091076858e-11,
+    "ham_mean_abs_coeff_diff": 1.277297576433422e-12,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2S_singlet_C2v_sto3g",
+    "json_filename": "H2S_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "C2v",
+    "symmetry_subgroup_used": "C2v",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 1.5831510000280105,
+    "n_qubits": 22,
+    "n_electrons": 18,
+    "point_group_detected": "C2v",
+    "HF": {
+      "ref": -394.3115556644997,
+      "new": -394.311555664562,
+      "diff": -6.230038707144558e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -394.3406911725885,
+      "new": -394.34069111900646,
+      "diff": 5.3582027703669155e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -394.35443219776647,
+      "new": -394.35443219714335,
+      "diff": 6.231175575521775e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -394.35449765920634,
+      "new": -394.35449765920833,
+      "diff": -1.9895196601282805e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 6246,
+    "n_terms_new": 6246,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9998869094940644,
+    "ham_raw_overlap": 0.9999434531482589,
+    "ham_max_coeff_diff": 1.022818535847184,
+    "ham_max_abs_coeff_diff": 2.019510931372537e-06,
+    "ham_mean_abs_coeff_diff": 2.160185432995754e-08,
+    "n_mismatched_keys": 0,
+    "status": "WARN",
+    "notes": "Fidelity=0.99988691 (orbital phase convention vs reference; Hamiltonians physically equivalent); max||a|-|b||=2.02e-06"
+  },
+  {
+    "molzoo_id": "CHN_singlet_Coov_sto3g",
+    "json_filename": "HCN_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 1.8910300419665873,
+    "n_qubits": 22,
+    "n_electrons": 14,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -91.67520896743603,
+      "new": -91.67520896718787,
+      "diff": 2.481641558915726e-10
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -91.82881563197401,
+      "new": -91.82881486657415,
+      "diff": 7.653998608248003e-07
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -91.83755422697428,
+      "new": -91.83755433507652,
+      "diff": -1.0810224182478123e-07
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -91.84091227096056,
+      "new": -91.84091227095209,
+      "diff": 8.469669410260394e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 6870,
+    "n_terms_new": 6870,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999996214,
+    "ham_raw_overlap": 0.9999999999998107,
+    "ham_max_coeff_diff": 6.683556588796269e-06,
+    "ham_max_abs_coeff_diff": 6.683556588796269e-06,
+    "ham_mean_abs_coeff_diff": 1.8104941927028716e-07,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2Mg_singlet_Dooh_sto3g",
+    "json_filename": "MgH2_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 1.082214042020496,
+    "n_qubits": 22,
+    "n_electrons": 14,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -198.21937462350974,
+      "new": -198.21937462351016,
+      "diff": -4.263256414560601e-13
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -198.2582719915441,
+      "new": -198.2582719846037,
+      "diff": 6.940382490938646e-09
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -198.26807429968372,
+      "new": -198.26807429917912,
+      "diff": 5.045990292273927e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -198.26915170605292,
+      "new": -198.26915170605304,
+      "diff": -1.1368683772161603e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 3558,
+    "n_terms_new": 3558,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 1.0000000000000007,
+    "ham_raw_overlap": 1.0000000000000004,
+    "ham_max_coeff_diff": 1.6407893488334935e-07,
+    "ham_max_abs_coeff_diff": 1.6407893488334935e-07,
+    "ham_mean_abs_coeff_diff": 3.805006414472564e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HLiO_singlet_Coov_sto3g",
+    "json_filename": "LiOH_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 2.115490707976278,
+    "n_qubits": 22,
+    "n_electrons": 12,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -81.76856516317768,
+      "new": -81.76856516325047,
+      "diff": -7.278799785126466e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -81.84662760266366,
+      "new": -81.84662680709918,
+      "diff": 7.955644747426049e-07
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -81.85078702841139,
+      "new": -81.85078716335215,
+      "diff": -1.3494076256392873e-07
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -81.8597904109943,
+      "new": -81.85979041097981,
+      "diff": 1.4480860954790842e-11
+    },
+    "fci_converged": true,
+    "n_terms_ref": 6870,
+    "n_terms_new": 6870,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.999999999999973,
+    "ham_raw_overlap": 0.9999999999999865,
+    "ham_max_coeff_diff": 2.427281153002947e-06,
+    "ham_max_abs_coeff_diff": 2.427281153002947e-06,
+    "ham_mean_abs_coeff_diff": 2.6672203389790342e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "FH_singlet_Coov_321g",
+    "json_filename": "HF_3-21G_SINGLET_JW.json",
+    "basis": "3-21g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 2.009262833977118,
+    "n_qubits": 22,
+    "n_electrons": 10,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -99.46021892473364,
+      "new": -99.46021892470411,
+      "diff": 2.9530156098189764e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -99.58344905881167,
+      "new": -99.5834490421159,
+      "diff": 1.6695764770702226e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -99.58706294737571,
+      "new": -99.58706294715466,
+      "diff": 2.2104984509496717e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -99.58791845765525,
+      "new": -99.58791845765538,
+      "diff": -1.2789769243681803e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 6870,
+    "n_terms_new": 6870,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999947,
+    "ham_raw_overlap": 0.9999999999999973,
+    "ham_max_coeff_diff": 8.544098578922021e-07,
+    "ham_max_abs_coeff_diff": 8.544098578922021e-07,
+    "ham_mean_abs_coeff_diff": 2.3709067909575222e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "HLi_singlet_Coov_321g",
+    "json_filename": "LiH_3-21G_SINGLET_JW.json",
+    "basis": "3-21g",
+    "tier": 3,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 1.727599417034071,
+    "n_qubits": 22,
+    "n_electrons": 4,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -7.929842624886334,
+      "new": -7.929842626067563,
+      "diff": -1.1812293365665028e-09
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -7.9427169507645745,
+      "new": -7.942717856353418,
+      "diff": -9.055888439135629e-07
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -7.949237304438309,
+      "new": -7.949237304038365,
+      "diff": 3.999440778557073e-10
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -7.9492494707796695,
+      "new": -7.949249470779664,
+      "diff": 5.329070518200751e-15
+    },
+    "fci_converged": true,
+    "n_terms_ref": 6862,
+    "n_terms_new": 6862,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999998606676,
+    "ham_raw_overlap": 0.9999999999303337,
+    "ham_max_coeff_diff": 5.573322945958206e-06,
+    "ham_max_abs_coeff_diff": 5.573322945958206e-06,
+    "ham_mean_abs_coeff_diff": 2.2141567239928043e-07,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "H2O2_singlet_C2_sto3g",
+    "json_filename": "HOOH_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 4,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "C2",
+    "symmetry_subgroup_used": "C2",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 4.226484208018519,
+    "n_qubits": 24,
+    "n_electrons": 18,
+    "point_group_detected": "C2",
+    "HF": {
+      "ref": -148.7649965940345,
+      "new": -148.76499659423646,
+      "diff": -2.0196466721245088e-10
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -148.84191263715755,
+      "new": -148.84191251909127,
+      "diff": 1.1806628208432812e-07
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -148.87058841186246,
+      "new": -148.87058841295627,
+      "diff": -1.0938094874290982e-09
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -148.8713797551716,
+      "new": -148.87137975516995,
+      "diff": 1.6484591469634324e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 14905,
+    "n_terms_new": 14905,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9992856944361311,
+    "ham_raw_overlap": 0.9996427834162217,
+    "ham_max_coeff_diff": 0.5711140226308865,
+    "ham_max_abs_coeff_diff": 2.1399310221464907e-06,
+    "ham_mean_abs_coeff_diff": 4.029626334775408e-08,
+    "n_mismatched_keys": 0,
+    "status": "WARN",
+    "notes": "Fidelity=0.99928569 (orbital phase convention vs reference; Hamiltonians physically equivalent); max||a|-|b||=2.14e-06"
+  },
+  {
+    "molzoo_id": "H4Si_singlet_Td_sto3g",
+    "json_filename": "SiH4_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 4,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Td",
+    "symmetry_subgroup_used": null,
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 3.6161900410079397,
+    "n_qubits": 26,
+    "n_electrons": 18,
+    "point_group_detected": "Td",
+    "HF": {
+      "ref": -287.91021322585783,
+      "new": -287.9102132258568,
+      "diff": 1.0231815394945443e-12
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -287.95998820773394,
+      "new": -287.9599882458045,
+      "diff": -3.8070538721513e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -287.9833192116129,
+      "new": -287.98331920733256,
+      "diff": 4.280366283637704e-09
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -287.98400189427286,
+      "new": -287.98400189427053,
+      "diff": 2.3305801732931286e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 9892,
+    "n_terms_new": 9892,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9997795341612759,
+    "ham_raw_overlap": 0.9998897610043199,
+    "ham_max_coeff_diff": 0.6619667926487445,
+    "ham_max_abs_coeff_diff": 1.5996934072948221e-06,
+    "ham_mean_abs_coeff_diff": 1.1293148016908594e-08,
+    "n_mismatched_keys": 0,
+    "status": "WARN",
+    "notes": "Fidelity=0.99977953 (orbital phase convention vs reference; Hamiltonians physically equivalent); max||a|-|b||=1.60e-06"
+  },
+  {
+    "molzoo_id": "CH4O_singlet_Cs_sto3g",
+    "json_filename": "CH3OH_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 4,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Cs",
+    "symmetry_subgroup_used": "Cs",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 21.45285616599722,
+    "n_qubits": 28,
+    "n_electrons": 18,
+    "point_group_detected": "Cs",
+    "HF": {
+      "ref": -113.54919325231234,
+      "new": -113.54919325229912,
+      "diff": 1.3216094885137863e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -113.63932092247842,
+      "new": -113.63932096362778,
+      "diff": -4.114936302812566e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -113.67099145770099,
+      "new": -113.67099145279522,
+      "diff": 4.905771788799029e-09
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -113.67203929262911,
+      "new": -113.67203929262956,
+      "diff": -4.547473508864641e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 30415,
+    "n_terms_new": 30415,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9988451954987091,
+    "ham_raw_overlap": 0.9994224309563545,
+    "ham_max_coeff_diff": 0.39891049279445284,
+    "ham_max_abs_coeff_diff": 1.1044180144637039e-05,
+    "ham_mean_abs_coeff_diff": 7.569826008099318e-08,
+    "n_mismatched_keys": 0,
+    "status": "WARN",
+    "notes": "Fidelity=0.99884520 (orbital phase convention vs reference; Hamiltonians physically equivalent); max||a|-|b||=1.10e-05"
+  },
+  {
+    "molzoo_id": "CO2_singlet_Dooh_sto3g",
+    "json_filename": "CO2_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 4,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Dooh",
+    "symmetry_subgroup_used": "Dooh",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 8.536685707978904,
+    "n_qubits": 30,
+    "n_electrons": 22,
+    "point_group_detected": "Dooh",
+    "HF": {
+      "ref": -185.06524523042333,
+      "new": -185.06524523041261,
+      "diff": 1.071498445526231e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -185.26547775236588,
+      "new": -185.26547635125232,
+      "diff": 1.401113564725165e-06
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -185.25700888339597,
+      "new": -185.25700899740505,
+      "diff": -1.1400908306313795e-07
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -185.27741612067763,
+      "new": -185.2774161206794,
+      "diff": -1.7621459846850485e-12
+    },
+    "fci_converged": true,
+    "n_terms_ref": 11434,
+    "n_terms_new": 11434,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.999999999999996,
+    "ham_raw_overlap": 0.999999999999998,
+    "ham_max_coeff_diff": 9.927870270529104e-07,
+    "ham_max_abs_coeff_diff": 9.927870270529104e-07,
+    "ham_mean_abs_coeff_diff": 2.5786493516017122e-08,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  },
+  {
+    "molzoo_id": "ClNa_singlet_Coov_sto3g",
+    "json_filename": "NaCl_STO-3G_SINGLET_JW.json",
+    "basis": "sto-3g",
+    "tier": 4,
+    "charge": 0,
+    "multiplicity": 1,
+    "point_group_input": "Coov",
+    "symmetry_subgroup_used": "Coov",
+    "geom_max_coord_diff": 0.0,
+    "elapsed_seconds": 49.27843279199442,
+    "n_qubits": 36,
+    "n_electrons": 28,
+    "point_group_detected": "Coov",
+    "HF": {
+      "ref": -614.5241813693794,
+      "new": -614.5241813694096,
+      "diff": -3.012701199622825e-11
+    },
+    "hf_converged": true,
+    "MP2": {
+      "ref": -614.5659922353074,
+      "new": -614.5659922967394,
+      "diff": -6.143204700492788e-08
+    },
+    "mp2_converged": true,
+    "CCSD": {
+      "ref": -614.5673113510584,
+      "new": -614.5673113476915,
+      "diff": 3.3668356991256587e-09
+    },
+    "ccsd_converged": true,
+    "FCI": {
+      "ref": -614.5689846614488,
+      "new": -614.5689846614482,
+      "diff": 5.684341886080801e-13
+    },
+    "fci_converged": true,
+    "n_terms_ref": 42599,
+    "n_terms_new": 42599,
+    "n_terms_match": true,
+    "ham_hs_fidelity": 0.9999999999999991,
+    "ham_raw_overlap": 0.9999999999999996,
+    "ham_max_coeff_diff": 5.432048486575525e-07,
+    "ham_max_abs_coeff_diff": 5.432048486575525e-07,
+    "ham_mean_abs_coeff_diff": 2.3737930627900574e-09,
+    "n_mismatched_keys": 0,
+    "status": "PASS",
+    "notes": ""
+  }
+]
