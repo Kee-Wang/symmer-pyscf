@@ -116,9 +116,10 @@ def generate_symmer_data(
     _errors = {}
 
     # Convert FCI state to Symmer format
-    # Skip for large systems: state vector has 2^n_qubits entries, infeasible
-    # above ~30 qubits (~16 GB memory for complex128).
-    _MAX_QUBITS_FOR_STATE = 30
+    # Skip for large systems: state vector has 2^n_qubits entries.
+    # At 28 qubits the FCI state alone produces ~112 MB JSON; keep <= 20
+    # to stay under ~5 MB per file.
+    _MAX_QUBITS_FOR_STATE = 20
     qml_fci_state = None
     if pyscf_fci is not None and fcivec is not None:
         if molecule.n_qubits > _MAX_QUBITS_FOR_STATE:
