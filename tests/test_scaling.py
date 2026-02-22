@@ -56,17 +56,42 @@ class TestScaleGeometry:
 
     def test_double(self, h2_geometry):
         result = scale_geometry(h2_geometry, 2.0)
-        assert result[0] == ('H', (0.0, 0.0, 0.0))
-        assert result[1][1][2] == pytest.approx(1.48)
+        # Centroid at (0, 0, 0.37); scaled coords: -0.37 and 1.11
+        assert result[0][1][2] == pytest.approx(-0.37)
+        assert result[1][1][2] == pytest.approx(1.11)
+        # Bond length doubles: 1.11 - (-0.37) = 1.48
+        assert result[1][1][2] - result[0][1][2] == pytest.approx(1.48)
 
     def test_half(self, h2_geometry):
         result = scale_geometry(h2_geometry, 0.5)
-        assert result[1][1][2] == pytest.approx(0.37)
+        # Centroid at (0, 0, 0.37); scaled coords: 0.185 and 0.555
+        assert result[0][1][2] == pytest.approx(0.185)
+        assert result[1][1][2] == pytest.approx(0.555)
+        # Bond length halves: 0.555 - 0.185 = 0.37
+        assert result[1][1][2] - result[0][1][2] == pytest.approx(0.37)
 
     def test_preserves_elements(self, h2_geometry):
         result = scale_geometry(h2_geometry, 3.0)
         assert result[0][0] == 'H'
         assert result[1][0] == 'H'
+
+    def test_non_centered_molecule(self):
+        """Centroid-relative scaling keeps center of mass in place."""
+        geom = [('O', (1.0, 2.0, 3.0)), ('H', (1.0, 2.0, 4.0))]
+        result = scale_geometry(geom, 2.0)
+        # Centroid at (1.0, 2.0, 3.5) — should stay unchanged
+        coords = np.array([c for _, c in result])
+        centroid = coords.mean(axis=0)
+        np.testing.assert_allclose(centroid, [1.0, 2.0, 3.5])
+        # Bond length doubles from 1.0 to 2.0
+        bond = np.linalg.norm(coords[1] - coords[0])
+        assert bond == pytest.approx(2.0)
+
+    def test_single_atom(self):
+        """Single atom stays put regardless of alpha."""
+        geom = [('He', (5.0, 3.0, 1.0))]
+        result = scale_geometry(geom, 2.0)
+        assert result[0][1] == pytest.approx((5.0, 3.0, 1.0))
 
 
 class TestGenerateScalingGrid:

@@ -32,19 +32,19 @@ def scale_geometry(
     geometry: List[Tuple[str, Tuple[float, float, float]]],
     alpha: float,
 ) -> List[Tuple[str, Tuple[float, float, float]]]:
-    """Uniformly scale all atomic coordinates by factor *alpha*.
+    """Scale all inter-atomic distances by *alpha* relative to the centroid.
 
     Args:
         geometry: List of (atom, (x, y, z)) tuples.
         alpha: Scaling factor (1.0 = equilibrium geometry).
 
     Returns:
-        New geometry with all coordinates multiplied by alpha.
+        New geometry with distances from centroid scaled by alpha.
     """
-    return [
-        (element, (x * alpha, y * alpha, z * alpha))
-        for element, (x, y, z) in geometry
-    ]
+    coords = np.array([c for _, c in geometry])
+    centroid = coords.mean(axis=0)
+    scaled = centroid + alpha * (coords - centroid)
+    return [(el, tuple(row)) for el, row in zip([e for e, _ in geometry], scaled)]
 
 
 def generate_scaling_grid(
