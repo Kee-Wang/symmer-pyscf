@@ -9,6 +9,7 @@ from symmerpyscf.utils import (
     hs_inner_product,
     hs_norm,
     hs_fidelity,
+    hs_infidelity,
     hs_distance,
 )
 
@@ -177,3 +178,86 @@ class TestHSDistance:
         # distance should be ||0.5 * XX||_HS = 0.5 * ||XX||_HS = 0.5 * sqrt(4) = 1.0
         # XX is 4x4 with 4 non-zero entries of magnitude 1, so ||XX||_HS = sqrt(4) = 2
         assert hs_distance(op1, op2) == pytest.approx(0.5 * 2.0)
+
+
+# ---------------------------------------------------------------------------
+# Cross-validation: Pauli coefficient path vs sparse matrix path
+# ---------------------------------------------------------------------------
+
+def _multi_term_ops():
+    """Return two multi-term PauliwordOps for cross-validation."""
+    A = PauliwordOp.from_dictionary({'XY': 0.3, 'ZI': -0.7, 'IX': 0.5j})
+    B = PauliwordOp.from_dictionary({'ZI': 1.0, 'IX': 0.2, 'YY': -0.4})
+    return A, B
+
+
+class TestPauliFastPathCrossValidation:
+    """Verify that the Pauli coefficient fast path matches the sparse matrix path."""
+
+    def test_inner_product_matches_sparse(self):
+        A, B = _multi_term_ops()
+        pauli_result = hs_inner_product(A, B)
+        sparse_result = hs_inner_product(A.to_sparse_matrix, B.to_sparse_matrix)
+        assert pauli_result == pytest.approx(sparse_result, abs=1e-12)
+
+    def test_norm_matches_sparse(self):
+        A, _ = _multi_term_ops()
+        pauli_result = hs_norm(A)
+        sparse_result = hs_norm(A.to_sparse_matrix)
+        assert pauli_result == pytest.approx(sparse_result, abs=1e-12)
+
+    def test_fidelity_matches_sparse(self):
+        A, B = _multi_term_ops()
+        pauli_result = hs_fidelity(A, B)
+        sparse_result = hs_fidelity(A.to_sparse_matrix, B.to_sparse_matrix)
+        assert pauli_result == pytest.approx(sparse_result, abs=1e-12)
+
+    def test_distance_matches_sparse(self):
+        A, B = _multi_term_ops()
+        pauli_result = hs_distance(A, B)
+        sparse_result = hs_distance(A.to_sparse_matrix, B.to_sparse_matrix)
+        assert pauli_result == pytest.approx(sparse_result, abs=1e-12)
+
+    def test_inner_product_self_matches_sparse(self):
+        A, _ = _multi_term_ops()
+        pauli_result = hs_inner_product(A, A)
+        sparse_result = hs_inner_product(A.to_sparse_matrix, A.to_sparse_matrix)
+        assert pauli_result == pytest.approx(sparse_result, abs=1e-12)
+
+    def test_distance_disjoint_keys(self):
+        """Operators with no common Pauli terms."""
+        A = PauliwordOp.from_dictionary({'XI': 1.0})
+        B = PauliwordOp.from_dictionary({'IZ': 1.0})
+        pauli_result = hs_distance(A, B)
+        sparse_result = hs_distance(A.to_sparse_matrix, B.to_sparse_matrix)
+        assert pauli_result == pytest.approx(sparse_result, abs=1e-12)
+
+
+# ---------------------------------------------------------------------------
+# hs_infidelity
+# ---------------------------------------------------------------------------
+
+class TestHSInfidelity:
+    def test_identical_operators(self):
+        A = PauliwordOp.from_dictionary({'XX': 1.0, 'ZZ': 0.5})
+        assert hs_infidelity(A, A) == pytest.approx(0.0)
+
+    def test_orthogonal_operators(self):
+        A = PauliwordOp.from_dictionary({'XI': 1.0})
+        B = PauliwordOp.from_dictionary({'IZ': 1.0})
+        assert hs_infidelity(A, B) == pytest.approx(1.0)
+
+    def test_complement_of_fidelity(self):
+        A, B = _multi_term_ops()
+        assert hs_infidelity(A, B) == pytest.approx(1.0 - hs_fidelity(A, B))
+
+    def test_zero_operator(self):
+        A = PauliwordOp.from_dictionary({'II': 0.0})
+        B = PauliwordOp.from_dictionary({'ZI': 1.0})
+        # fidelity is 0 when either operator is zero → infidelity = 1
+        assert hs_infidelity(A, B) == pytest.approx(1.0)
+
+    def test_dense_matrix_input(self):
+        A = np.array([[1, 2], [3, 4]], dtype=complex)
+        B = 2.0 * A
+        assert hs_infidelity(A, B) == pytest.approx(0.0)

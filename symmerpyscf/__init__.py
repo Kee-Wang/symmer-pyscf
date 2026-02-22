@@ -22,6 +22,7 @@ from .utils import (
     hs_inner_product,
     hs_norm,
     hs_fidelity,
+    hs_infidelity,
     hs_distance,
 )
 from .scaling import (
@@ -46,6 +47,7 @@ __all__ = [
     "hs_inner_product",
     "hs_norm",
     "hs_fidelity",
+    "hs_infidelity",
     "hs_distance",
     "parse_xyz_string",
     "scale_geometry",

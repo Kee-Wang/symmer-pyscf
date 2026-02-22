@@ -94,6 +94,23 @@ def _to_sparse(A):
     return A
 
 
+def _both_pauli(A, B) -> bool:
+    return isinstance(A, PauliwordOp) and isinstance(B, PauliwordOp)
+
+
+def _pauli_coeff_inner_product(A: PauliwordOp, B: PauliwordOp) -> complex:
+    """Tr(A† B) = 2^n Σ_P conj(α_P) β_P via Pauli orthogonality. O(k)."""
+    if A.n_qubits != B.n_qubits:
+        raise ValueError(f"Qubit count mismatch: {A.n_qubits} vs {B.n_qubits}")
+    d_a = A.to_dictionary
+    d_b = B.to_dictionary
+    common = set(d_a) & set(d_b)
+    if not common:
+        return 0j
+    coeff_sum = sum(np.conj(d_a[k]) * d_b[k] for k in common)
+    return complex((2 ** A.n_qubits) * coeff_sum)
+
+
 def hs_inner_product(A, B) -> complex:
     """
     Compute the Hilbert-Schmidt inner product Tr(A† B).
@@ -104,7 +121,14 @@ def hs_inner_product(A, B) -> complex:
 
     Returns:
         Complex value Tr(A† B).
+
+    Notes:
+        When both A and B are PauliwordOp, uses O(k) Pauli coefficient
+        arithmetic instead of constructing 2^n × 2^n matrices.
     """
+    if _both_pauli(A, B):
+        return _pauli_coeff_inner_product(A, B)
+
     A_mat = _to_sparse(A)
     B_mat = _to_sparse(B)
 
@@ -152,6 +176,23 @@ def hs_fidelity(A, B) -> float:
     return float(np.abs(ip) ** 2 / (norm_A_sq * norm_B_sq))
 
 
+def hs_infidelity(A, B) -> float:
+    """
+    Compute 1 − hs_fidelity(A, B).
+
+    The result lies in [0, 1]; 0.0 means A and B are identical up to a global
+    scalar factor.
+
+    Args:
+        A: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+        B: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+
+    Returns:
+        Float in [0, 1].
+    """
+    return 1.0 - hs_fidelity(A, B)
+
+
 def hs_distance(A, B) -> float:
     """
     Compute the Hilbert-Schmidt distance ‖A − B‖_HS = √Tr((A−B)†(A−B)).
@@ -162,7 +203,20 @@ def hs_distance(A, B) -> float:
 
     Returns:
         Non-negative real value.
+
+    Notes:
+        When both A and B are PauliwordOp, uses O(k) Pauli coefficient
+        arithmetic instead of constructing 2^n × 2^n matrices.
     """
+    if _both_pauli(A, B):
+        if A.n_qubits != B.n_qubits:
+            raise ValueError(f"Qubit count mismatch: {A.n_qubits} vs {B.n_qubits}")
+        d_a = A.to_dictionary
+        d_b = B.to_dictionary
+        all_keys = set(d_a) | set(d_b)
+        sum_sq = sum(abs(d_a.get(k, 0) - d_b.get(k, 0)) ** 2 for k in all_keys)
+        return float(np.sqrt((2 ** A.n_qubits) * sum_sq))
+
     A_mat = _to_sparse(A)
     B_mat = _to_sparse(B)
     diff = A_mat - B_mat
