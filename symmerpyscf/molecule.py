@@ -32,6 +32,7 @@ def generate_symmer_data(
     basis: str = "sto-3g",
     charge: int = 0,
     multiplicity: int = 1,
+    include_state_vectors: bool = True,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Generate Symmer-compatible quantum chemistry data from molecular geometry.
@@ -45,6 +46,10 @@ def generate_symmer_data(
         basis: Basis set (default: "sto-3g")
         charge: Molecular charge
         multiplicity: Spin multiplicity
+        include_state_vectors: If True (default), include FCI/CCSD/CISD state
+            vectors in the symmer_data dict. Set to False to exclude them and
+            reduce file size. State vectors are always computed for mol_info
+            regardless of this flag.
 
     Returns:
         mol_info: Dictionary with key molecular data for further processing
@@ -213,6 +218,7 @@ def generate_symmer_data(
         degeneracy_info=degeneracy_info,
         mp2_warnings=mp2_warnings,
         fci_warnings=fci_warnings,
+        include_state_vectors=include_state_vectors,
     )
 
     # Attach error audit trail to output
@@ -239,12 +245,10 @@ def generate_symmer_data(
     fci_props = symmer_data['calculated_properties'].get('FCI', {})
     if fci_props.get('energy') is not None:
         mol_info['fci_energy'] = fci_props['energy']
-    fci_state_data = symmer_data['auxiliary_operators'].get('fci_state')
-    if fci_state_data:
-        mol_info['fci_state'] = QuantumState.from_dictionary(fci_state_data)
-    ccsd_state_data = symmer_data['auxiliary_operators'].get('ccsd_state')
-    if ccsd_state_data:
-        mol_info['ccsd_state'] = QuantumState.from_dictionary(ccsd_state_data)
+    if qml_fci_state is not None:
+        mol_info['fci_state'] = qml_fci_state
+    if symmer_ccsd_state is not None:
+        mol_info['ccsd_state'] = symmer_ccsd_state
     ccsd_op_data = symmer_data['auxiliary_operators'].get('CCSD_operator_second_quantized')
     if ccsd_op_data:
         mol_info['CCSD_generator'] = of.FermionOperator(ccsd_op_data)
@@ -691,7 +695,8 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
                          pyscf_ccsd, pyscf_fci, symmer_ham, second_quantized_ham,
                          hf_state, operators, symmer_ccsd_generator, ccsd_2nd,
                          symmer_ccsd_state, symmer_cisd_state, qml_fci_state,
-                         degeneracy_info=None, mp2_warnings=None, fci_warnings=None):
+                         degeneracy_info=None, mp2_warnings=None, fci_warnings=None,
+                         include_state_vectors=True):
     """Compile all data into Symmer format dictionary."""
     symmer_data = {}
 
@@ -789,12 +794,13 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
     if ccsd_2nd is not None:
         symmer_data['auxiliary_operators']['CCSD_operator_second_quantized'] = str(ccsd_2nd)
 
-    # States — only if available
-    if symmer_ccsd_state is not None:
-        symmer_data['auxiliary_operators']['ccsd_state'] = symmer_to_dict(symmer_ccsd_state)
-    if symmer_cisd_state is not None:
-        symmer_data['auxiliary_operators']['cisd_state'] = symmer_to_dict(symmer_cisd_state)
-    if qml_fci_state is not None:
-        symmer_data['auxiliary_operators']['fci_state'] = symmer_to_dict(qml_fci_state)
+    # States — only if requested (these dominate file size at 2^n_qubits entries each)
+    if include_state_vectors:
+        if symmer_ccsd_state is not None:
+            symmer_data['auxiliary_operators']['ccsd_state'] = symmer_to_dict(symmer_ccsd_state)
+        if symmer_cisd_state is not None:
+            symmer_data['auxiliary_operators']['cisd_state'] = symmer_to_dict(symmer_cisd_state)
+        if qml_fci_state is not None:
+            symmer_data['auxiliary_operators']['fci_state'] = symmer_to_dict(qml_fci_state)
 
     return symmer_data
