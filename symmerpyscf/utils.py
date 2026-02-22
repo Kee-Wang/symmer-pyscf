@@ -2,6 +2,7 @@
 
 from typing import Dict, Any, Union
 import numpy as np
+import scipy.sparse as sp
 from openfermion.ops import FermionOperator
 from symmer import QuantumState, PauliwordOp
 
@@ -203,3 +204,91 @@ def pauli_string_complexity(operator: PauliwordOp) -> Dict[str, Any]:
         'max_weight': max(all_weights) if all_weights else 0,
         'mean_weight': np.mean(all_weights) if all_weights else 0,
     }
+
+
+# ---------------------------------------------------------------------------
+# Hilbert-Schmidt inner product, norm, fidelity, and distance
+# ---------------------------------------------------------------------------
+
+def _to_sparse(A):
+    """Convert A to a scipy sparse matrix if it is a PauliwordOp; pass through otherwise."""
+    if isinstance(A, PauliwordOp):
+        return A.to_sparse_matrix
+    return A
+
+
+def hs_inner_product(A, B) -> complex:
+    """
+    Compute the Hilbert-Schmidt inner product Tr(A† B).
+
+    Args:
+        A: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+        B: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+
+    Returns:
+        Complex value Tr(A† B).
+    """
+    A_mat = _to_sparse(A)
+    B_mat = _to_sparse(B)
+
+    product = A_mat.conj().T @ B_mat
+
+    if sp.issparse(product):
+        return product.diagonal().sum()
+    return np.trace(product)
+
+
+def hs_norm(A) -> float:
+    """
+    Compute the Hilbert-Schmidt norm √Tr(A† A) (= Frobenius norm for matrices).
+
+    Args:
+        A: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+
+    Returns:
+        Non-negative real value.
+    """
+    return np.sqrt(np.real(hs_inner_product(A, A)))
+
+
+def hs_fidelity(A, B) -> float:
+    """
+    Compute the Hilbert-Schmidt fidelity |Tr(A† B)|² / (Tr(A† A) · Tr(B† B)).
+
+    The result lies in [0, 1]; 1.0 means A and B are identical up to a global
+    scalar factor.  Returns 0.0 if either operator is zero.
+
+    Args:
+        A: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+        B: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+
+    Returns:
+        Float in [0, 1].
+    """
+    norm_A_sq = np.real(hs_inner_product(A, A))
+    norm_B_sq = np.real(hs_inner_product(B, B))
+
+    if norm_A_sq == 0 or norm_B_sq == 0:
+        return 0.0
+
+    ip = hs_inner_product(A, B)
+    return float(np.abs(ip) ** 2 / (norm_A_sq * norm_B_sq))
+
+
+def hs_distance(A, B) -> float:
+    """
+    Compute the Hilbert-Schmidt distance ‖A − B‖_HS = √Tr((A−B)†(A−B)).
+
+    Args:
+        A: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+        B: PauliwordOp, scipy sparse matrix, or numpy ndarray.
+
+    Returns:
+        Non-negative real value.
+    """
+    A_mat = _to_sparse(A)
+    B_mat = _to_sparse(B)
+    diff = A_mat - B_mat
+    if sp.issparse(diff):
+        return float(np.sqrt(np.real(diff.conj().multiply(diff).sum())))
+    return float(np.linalg.norm(diff, 'fro'))

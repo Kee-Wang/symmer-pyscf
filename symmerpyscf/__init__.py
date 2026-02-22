@@ -17,7 +17,13 @@ from .transforms import (
 )
 from .cas_hamiltonian import generate_cas_qubit_hamiltonian
 from .contextual import mol_info_to_H_cs
-from .utils import symmer_to_dict
+from .utils import (
+    symmer_to_dict,
+    hs_inner_product,
+    hs_norm,
+    hs_fidelity,
+    hs_distance,
+)
 from .scaling import (
     MoleculeRecord,
     ScalingResult,
@@ -42,6 +48,10 @@ __all__ = [
     "generate_cas_qubit_hamiltonian",
     "mol_info_to_H_cs",
     "symmer_to_dict",
+    "hs_inner_product",
+    "hs_norm",
+    "hs_fidelity",
+    "hs_distance",
     "MoleculeRecord",
     "ScalingResult",
     "parse_molecule_csv",
