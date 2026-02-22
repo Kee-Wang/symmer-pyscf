@@ -14,11 +14,11 @@ All notable changes to this project will be documented in this file.
   Hilbert space excluded the correct spin sector.
 
 - **MP2 for degenerate systems**: When MP2 diverges (NaN) due to exact
-  orbital degeneracy from symmetry-adapted SCF, the pipeline now re-runs
+  orbital degeneracy from symmetry-adapted SCF, the code now re-runs
   SCF without symmetry to break the degeneracy, then computes MP2.
 
 - **Large-system OOM**: State vector conversion (FCI, CCSD, CISD) now skips
-  systems with >30 qubits to avoid out-of-memory (2^n entries). Previously,
+  systems with >20 qubits to avoid out-of-memory (2^n entries). Previously,
   ClNa (36 qubits) was killed by the OS during state conversion.
 
 ### Added
@@ -26,5 +26,9 @@ All notable changes to this project will be documented in this file.
 - FCI spin metadata in output JSON (`spin_squared`, `multiplicity`, `spin_constrained`)
 - Warning audit trail in MP2 and FCI output entries
 - `orbital_degeneracy` field in output JSON
-- Validation suite: 51 molecules across 4 tiers (6–36 qubits), comparing
-  energies and Hamiltonian coefficients against symmer reference JSONs
+
+### Removed
+- Validation suite (51 molecules across 4 tiers) archived to `3-Symmer-Hamiltonian`
+- Pipeline orchestration (`MoleculeRecord`, `ScalingResult`, `parse_molecule_csv`,
+  `run_single_point`, `run_molecule_scan`, `run_database_pipeline`, CLI entry point)
+  archived to `3-Symmer-Hamiltonian`

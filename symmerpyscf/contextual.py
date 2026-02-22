@@ -67,6 +67,16 @@ def mol_info_to_H_cs(
         >>> print(f"CS Energy: {data_cs['cs_energy']:.6f}")
         >>> print(f"Error vs FCI: {data_cs['cs_energy'] - data_cs['fci_energy']:.6e}")
     """
+    required = ['H_second_quantized', 'fci_state', 'hf_state', 'ccsd_state',
+                'number_alpha', 'number_beta', 'CCSD_generator', 'n_particles',
+                'n_qubits_full', 'fci_energy']
+    missing = [k for k in required if k not in mol_info]
+    if missing:
+        raise ValueError(
+            f"mol_info missing required keys: {missing}. "
+            f"Ensure FCI and CCSD solvers succeeded before calling mol_info_to_H_cs."
+        )
+
     # Generate random invertible transformation if not provided
     if beta is None:
         beta = random_invertible_binary_matrix(n=mol_info['n_qubits_full'])

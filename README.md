@@ -8,7 +8,7 @@ Required main package: [Symmer](https://github.com/qmatter-labs/symmer/tree/main
 2. **Generalized transformation**: The fermion-to-qubit mapping can be Jordan-Wigner, Bravyi-Kitaev, or **arbitrary** invertible binary matrices.
 3. **CAS (Complete Active Space) Hamiltonian**: Build qubit Hamiltonians restricted to a complete active space via `generate_cas_qubit_hamiltonian`, with optional MP2 natural orbital selection. Returns a Symmer-compatible JSON dict alongside the raw result dict, and supports `save_file` for JSON export.
 4. **Contextual subspace reduction**: Compute contextual subspace Hamiltonians with reduced qubit count via `mol_info_to_H_cs`.
-5. **Bond-scaling pipeline**: Systematically generate Hamiltonians across bond-scaling trajectories for benchmarking via `run_database_pipeline`.
+5. **Bond-scaling utilities**: Scale molecular geometries, generate adaptive alpha grids, and detect energy convergence for bond-length scans.
 
 ## Installation
 
