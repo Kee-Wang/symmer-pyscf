@@ -21,8 +21,9 @@ def qsci_symmer_with_prob_hist(
     ----------
     symmer_hamiltonian : PauliwordOp
         Pauli Hamiltonian.
-    probability_histogram : dict[str, int | float]
+    probability_histogram : dict[str, int]
         Bitstring -> count dictionary from Z-basis measurements.
+        Only the bitstring keys are used; count values are ignored.
         Assumes bad bitstrings (wrong particle number) have already been removed.
     check_output : bool
         If True, verify the QSCI energy via expectation value.
@@ -50,14 +51,12 @@ def qsci_symmer_with_prob_hist(
         H_sparse = sp.sparse.csr_array(H_sub)
         eigvals, eigvecs = sp.sparse.linalg.eigsh(H_sparse, which='SA', k=1)
 
-    min_idx = np.argmin(eigvals)
-    qsci_energy = eigvals[min_idx]
+    qsci_energy = eigvals[0]
     qsci_state = q_state.copy()
-    qsci_state.state_op.coeff_vec = eigvecs[:, min_idx]
+    qsci_state.state_op.coeff_vec = eigvecs[:, 0]
 
     if check_output:
-        assert np.isclose(
-            symmer_hamiltonian.expval(qsci_state).real, qsci_energy
-        ), "energy not correct"
+        if not np.isclose(symmer_hamiltonian.expval(qsci_state).real, qsci_energy):
+            raise RuntimeError("energy not correct")
 
     return qsci_energy, qsci_state

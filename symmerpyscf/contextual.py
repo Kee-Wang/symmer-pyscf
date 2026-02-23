@@ -40,6 +40,7 @@ def mol_info_to_H_cs(
             - ccsd_state: CCSD state
             - number_alpha: Alpha particle number operator
             - number_beta: Beta particle number operator
+            - S2: S² spin operator
             - CCSD_generator: CCSD cluster operator
             - n_particles: Total number of particles
             - n_qubits_full: Total number of qubits
@@ -64,6 +65,9 @@ def mol_info_to_H_cs(
             - cs_s2: Expectation value <S²> of the ground state
             - fci_energy: Reference FCI energy
             - beta: Transformation matrix used
+            - n_terms_hamiltonian: Number of Pauli terms in CS Hamiltonian
+            - n_terms_ccsd_generator: Number of Pauli terms in CS CCSD generator
+            - n_qubits_cs: Number of qubits in contextual subspace
 
     Example:
         >>> data_cs = mol_info_to_H_cs(mol_info, n_cs_qubits=2, beta=None)

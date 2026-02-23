@@ -149,10 +149,10 @@ def generate_symmer_data(
         try:
             t1 = pyscf.cc.addons.spatial2spin(pyscf_ccsd.t1)
             t2 = pyscf.cc.addons.spatial2spin(pyscf_ccsd.t2)
+            n_occ = pyscf_molecule.nelec[0] + pyscf_molecule.nelec[1]
+            n_virt = 2 * pyscf_molecule.nao_nr() - n_occ
             ccsd_2nd = t1_t2_to_fermionic_operator(
-                t1, t2,
-                pyscf_molecule.nelec[0] * 2,
-                (pyscf_molecule.nao_nr() - pyscf_molecule.nelec[0]) * 2
+                t1, t2, n_occ, n_virt
             )
             symmer_ccsd_generator = PauliwordOp.from_openfermion(of.jordan_wigner(ccsd_2nd))
         except Exception as e:
@@ -611,13 +611,6 @@ def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
                             f"<S^2>={ss_val2:.4f}")
                     print(f"WARNING [AUDIT]: {msg2}")
                     warnings_list.append(msg2)
-
-        if degeneracy_info and degeneracy_info['degenerate']:
-            msg = (f"Note: orbital degeneracy detected "
-                   f"(gap={degeneracy_info['gap']:.2e} Ha). "
-                   f"FCI used fix_spin_(ss={target_ss}) to target "
-                   f"multiplicity={multiplicity}.")
-            warnings_list.append(msg)
 
         molecule.fci_energy = float(fci_energy)
         pyscf_data['fci'] = pyscf_fci

@@ -11,10 +11,10 @@ from symmerpyscf import qsci_symmer_with_prob_hist
 
 @pytest.fixture
 def h2_hamiltonian():
-    """Minimal 2-qubit Hamiltonian: H = -0.5 ZI - 0.5 IZ + 0.25 ZZ.
+    """Minimal 2-qubit Hamiltonian: H = -0.5 ZI - 0.5 IZ + 0.25 ZZ + 0.25 II.
 
-    Eigenvalues: {-1.25, -0.25, -0.25, 0.75}
-    Ground state: |00> with energy -1.25
+    Eigenvalues: {-0.5, 0, 0, 1.5}
+    Ground state: |00> with energy -0.5
     """
     return PauliwordOp.from_dictionary({
         'ZI': -0.5,
@@ -82,7 +82,7 @@ def test_returned_state_is_eigenstate(heisenberg_2q):
 
 
 def test_check_output_flag(h2_hamiltonian):
-    """check_output=False skips the assertion."""
+    """check_output=False skips the energy verification."""
     hist = {'00': 100}
     energy, state = qsci_symmer_with_prob_hist(
         h2_hamiltonian, hist, check_output=False
