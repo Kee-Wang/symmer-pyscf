@@ -239,6 +239,7 @@ def generate_symmer_data(
         'n_particles': symmer_data['n_particles']['total'],
         'number_alpha': of.FermionOperator(symmer_data['auxiliary_operators']['N_alpha_second_quantized']),
         'number_beta': of.FermionOperator(symmer_data['auxiliary_operators']['N_beta_second_quantized']),
+        'S2': of.FermionOperator(symmer_data['auxiliary_operators']['S^2_operator_second_quantized']),
     }
 
     # Optional fields — only present if the solver succeeded

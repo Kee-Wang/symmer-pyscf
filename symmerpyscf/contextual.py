@@ -57,8 +57,11 @@ def mol_info_to_H_cs(
             - Na_CS: Alpha number operator in CS
             - Nb_CS: Beta number operator in CS
             - CCSD_generator_CS: CCSD generator in CS
+            - S2_cs: S² operator in CS
             - hf_cs: Hartree-Fock state in CS
+            - cs_state: Ground state in CS
             - cs_energy: Ground state energy in CS
+            - cs_s2: Expectation value <S²> of the ground state
             - fci_energy: Reference FCI energy
             - beta: Transformation matrix used
 
@@ -68,8 +71,8 @@ def mol_info_to_H_cs(
         >>> print(f"Error vs FCI: {data_cs['cs_energy'] - data_cs['fci_energy']:.6e}")
     """
     required = ['H_second_quantized', 'fci_state', 'hf_state', 'ccsd_state',
-                'number_alpha', 'number_beta', 'CCSD_generator', 'n_particles',
-                'n_qubits_full', 'fci_energy']
+                'number_alpha', 'number_beta', 'S2', 'CCSD_generator',
+                'n_particles', 'n_qubits_full', 'fci_energy']
     missing = [k for k in required if k not in mol_info]
     if missing:
         raise ValueError(
@@ -89,6 +92,7 @@ def mol_info_to_H_cs(
     number_alpha = mol_info['number_alpha']
     number_beta = mol_info['number_beta']
     CCSD_generator = mol_info['CCSD_generator']
+    S2_operator = mol_info['S2']
     n_particles = mol_info['n_particles']
 
     # Apply generalized transformation to states
@@ -120,6 +124,11 @@ def mol_info_to_H_cs(
         n_qubits=beta.shape[0]
     )
 
+    S2 = PauliwordOp.from_openfermion(
+        generalized_transformation(S2_operator, beta=beta),
+        n_qubits=beta.shape[0]
+    )
+
     # Perform qubit tapering
     taper_obj = QubitTapering(H)
     H_tap = taper_obj.taper_it(ref_state=hf_state)
@@ -127,6 +136,7 @@ def mol_info_to_H_cs(
     N_alpha_tap = taper_obj.taper_it(aux_operator=number_alpha)
     N_beta_tap = taper_obj.taper_it(aux_operator=number_beta)
     ccsd_generator_tap = taper_obj.taper_it(aux_operator=CCSD_generator)
+    S2_tap = taper_obj.taper_it(aux_operator=S2)
 
     # Project states onto tapered space
     tap_ccsd_state = taper_obj.project_state(ccsd_state)
@@ -156,12 +166,19 @@ def mol_info_to_H_cs(
     Na_CS = cs_vqe.project_onto_subspace(N_alpha_tap)
     Nb_CS = cs_vqe.project_onto_subspace(N_beta_tap)
     CCSD_generator_CS = cs_vqe.project_onto_subspace(ccsd_generator_tap)
+    S2_cs = cs_vqe.project_onto_subspace(S2_tap)
 
     # Compute ground state energy in contextual subspace
     cs_energy, cs_state = exact_gs_energy(
         H_cs.to_sparse_matrix.real,
         n_particles=n_particles,
         number_operator=(Na_CS + Nb_CS)
+    )
+
+    # Compute <S²> of the selected ground state
+    cs_state_vec = cs_state.to_sparse_matrix.toarray().flatten()
+    cs_s2 = float(
+        (cs_state_vec.conj() @ S2_cs.to_sparse_matrix.toarray() @ cs_state_vec).real
     )
 
     # Prepare HF state in CS (normalized and positive coefficients)
@@ -173,8 +190,11 @@ def mol_info_to_H_cs(
         'Na_CS': Na_CS,
         'Nb_CS': Nb_CS,
         'CCSD_generator_CS': CCSD_generator_CS,
+        'S2_cs': S2_cs,
         'hf_cs': hf_cs,
+        'cs_state': cs_state,
         'cs_energy': cs_energy,
+        'cs_s2': cs_s2,
         'fci_energy': mol_info['fci_energy'],
         'beta': beta,
         'n_terms_hamiltonian': H_cs.n_terms,

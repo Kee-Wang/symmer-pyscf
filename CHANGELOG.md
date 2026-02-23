@@ -22,6 +22,11 @@ All notable changes to this project will be documented in this file.
   ClNa (36 qubits) was killed by the OS during state conversion.
 
 ### Added
+- **S² spin diagnostics**: `mol_info_to_H_cs` now builds, tapers, and projects
+  the S² operator through the contextual-subspace pipeline, returning `S2_cs`,
+  `cs_state`, and `cs_s2` (expectation value ⟨S²⟩ of the ground state)
+- **QSCI solver**: New `qsci_symmer_with_prob_hist` function implementing
+  quantum-selected configuration interaction from Z-basis measurement histograms
 - Orbital degeneracy detection at HOMO/LUMO boundary
 - FCI spin metadata in output JSON (`spin_squared`, `multiplicity`, `spin_constrained`)
 - Warning audit trail in MP2 and FCI output entries

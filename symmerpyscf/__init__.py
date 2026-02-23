@@ -17,6 +17,7 @@ from .transforms import (
 )
 from .cas_hamiltonian import generate_cas_qubit_hamiltonian
 from .contextual import mol_info_to_H_cs
+from .qsci import qsci_symmer_with_prob_hist
 from .utils import (
     symmer_to_dict,
     hs_inner_product,
@@ -43,6 +44,7 @@ __all__ = [
     "bravyi_kitaev_single_perturbations",
     "generate_cas_qubit_hamiltonian",
     "mol_info_to_H_cs",
+    "qsci_symmer_with_prob_hist",
     "symmer_to_dict",
     "hs_inner_product",
     "hs_norm",
