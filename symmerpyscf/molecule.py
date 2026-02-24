@@ -22,6 +22,8 @@ from symmer import QuantumState, PauliwordOp
 
 from .utils import symmer_to_dict, t1_t2_to_fermionic_operator
 
+_H2S_BOND_ANGLE_RAD = np.radians(92.533)  # experimental H-S-H angle
+
 
 def generate_symmer_data(
     geometry: List[Tuple[str, Tuple[float, float, float]]],
@@ -122,9 +124,9 @@ def generate_symmer_data(
 
     # Convert FCI state to Symmer format
     # Skip for large systems: state vector has 2^n_qubits entries.
-    # At 28 qubits the FCI state alone produces ~112 MB JSON; keep <= 20
-    # to stay under ~5 MB per file.
-    _MAX_QUBITS_FOR_STATE = 20
+    # At 28 qubits the FCI state alone produces ~112 MB JSON; keep <= 24
+    # (~16M amplitudes, ~70 MB) to support H2S (22q) while staying practical.
+    _MAX_QUBITS_FOR_STATE = 24
     qml_fci_state = None
     if pyscf_fci is not None and fcivec is not None:
         if molecule.n_qubits > _MAX_QUBITS_FOR_STATE:
@@ -237,6 +239,7 @@ def generate_symmer_data(
         'hf_state': QuantumState.from_dictionary(symmer_data['hf_state']),
         'n_qubits_full': symmer_data['n_qubits'],
         'n_particles': symmer_data['n_particles']['total'],
+        'multiplicity': symmer_data['multiplicity'],
         'number_alpha': of.FermionOperator(symmer_data['auxiliary_operators']['N_alpha_second_quantized']),
         'number_beta': of.FermionOperator(symmer_data['auxiliary_operators']['N_beta_second_quantized']),
         'S2': of.FermionOperator(symmer_data['auxiliary_operators']['S^2_operator_second_quantized']),
@@ -354,7 +357,7 @@ def get_geometry(molecule: str, bondlength: float) -> List[Tuple[str, Tuple[floa
     """Generate molecular geometry for common molecules.
 
     Args:
-        molecule: Molecule identifier ("H2", "LiH", or "HeH+").
+        molecule: Molecule identifier ("H2", "LiH", "HeH+", or "H2S").
         bondlength: Bond length in Angstroms.
 
     Returns:
@@ -363,25 +366,21 @@ def get_geometry(molecule: str, bondlength: float) -> List[Tuple[str, Tuple[floa
     Raises:
         ValueError: If molecule is not in the supported set.
     """
-    geometries = {
-        "H2": [
-            ('H', (0.0, 0.0, 0.0)),
-            ('H', (0.0, 0.0, bondlength))
-        ],
-        "LiH": [
-            ('Li', (0.0, 0.0, 0.0)),
-            ('H', (0.0, 0.0, bondlength))
-        ],
-        "HeH+": [
-            ('He', (0.0, 0.0, 0.0)),
-            ('H', (0.0, 0.0, bondlength))
-        ],
-    }
-
-    if molecule not in geometries:
-        raise ValueError(f"Molecule {molecule} not supported. Available: {list(geometries.keys())}")
-
-    return geometries[molecule]
+    if molecule == "H2":
+        return [('H', (0.0, 0.0, 0.0)), ('H', (0.0, 0.0, bondlength))]
+    elif molecule == "LiH":
+        return [('Li', (0.0, 0.0, 0.0)), ('H', (0.0, 0.0, bondlength))]
+    elif molecule == "HeH+":
+        return [('He', (0.0, 0.0, 0.0)), ('H', (0.0, 0.0, bondlength))]
+    elif molecule == "H2S":
+        return [
+            ('S', (0.0, 0.0, 0.0)),
+            ('H', (0.0, 0.0, bondlength)),
+            ('H', (bondlength * np.sin(_H2S_BOND_ANGLE_RAD), 0.0,
+                   bondlength * np.cos(_H2S_BOND_ANGLE_RAD))),
+        ]
+    else:
+        raise ValueError(f"Molecule {molecule} not supported. Available: ['H2', 'LiH', 'HeH+', 'H2S']")
 
 
 def _detect_orbital_degeneracy(mo_energy, nelec, threshold=1e-8):
@@ -709,6 +708,7 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
     symmer_data['basis'] = molecule.basis
     symmer_data['charge'] = molecule.charge
     symmer_data['spin'] = pyscf_molecule.spin
+    symmer_data['multiplicity'] = molecule.multiplicity
 
     # States
     symmer_data['hf_array'] = hf_state
@@ -750,6 +750,11 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
         fci_entry['spin_squared'] = molecule._pyscf_data['fci_spin_squared']
     if molecule._pyscf_data.get('fci_multiplicity') is not None:
         fci_entry['multiplicity'] = molecule._pyscf_data['fci_multiplicity']
+    fci_entry['target_multiplicity'] = molecule.multiplicity
+    if molecule._pyscf_data.get('fci_spin_squared') is not None:
+        S = (molecule.multiplicity - 1) / 2
+        target_ss = S * (S + 1)
+        fci_entry['spin_matches_target'] = abs(molecule._pyscf_data['fci_spin_squared'] - target_ss) < 0.1
     if fci_warnings:
         fci_entry['warnings'] = fci_warnings
 
