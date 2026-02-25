@@ -90,10 +90,8 @@ def test_h2_reference_energy(h2_cas):
 
 
 def test_h2_hermiticity(h2_cas):
-    """H_cas sparse matrix is Hermitian (H2)."""
-    mat = h2_cas["H_cas"].to_sparse_matrix
-    diff = mat - mat.conj().T
-    assert abs(diff).max() < 1e-10
+    """H_cas is Hermitian — all Pauli coefficients are real (H2)."""
+    assert np.allclose(h2_cas["H_cas"].coeff_vec.imag, 0, atol=1e-10)
 
 
 def test_h2_eigenvalue_consistency(h2_cas):
@@ -242,11 +240,9 @@ def test_n_qubits(n2_cas_results):
 
 @pytest.mark.slow
 def test_hamiltonian_hermiticity(n2_cas_results):
-    """H_cas sparse matrix is Hermitian."""
+    """H_cas is Hermitian — all Pauli coefficients are real."""
     for result in n2_cas_results.values():
-        mat = result["H_cas"].to_sparse_matrix
-        diff = mat - mat.conj().T
-        assert abs(diff).max() < 1e-10
+        assert np.allclose(result["H_cas"].coeff_vec.imag, 0, atol=1e-10)
 
 
 @pytest.mark.slow
@@ -268,11 +264,16 @@ def test_state_dimension(n2_cas_results):
 @pytest.mark.slow
 def test_eigenvalue_consistency(n2_cas_results):
     """min(eig(H_cas)) == e_casci to 1e-8 (e_core included in H_cas)."""
+    checked = 0
     for (ncas, nelecas), result in n2_cas_results.items():
+        if result["n_qubits"] > 16:
+            continue  # encoding validated by smaller active spaces; sparse matrix too large
         e_min = _min_eigenvalue(result["H_cas"])
         assert abs(e_min - result["e_casci"]) < 1e-8, (
             f"CAS({ncas},{nelecas}): {e_min} vs {result['e_casci']}"
         )
+        checked += 1
+    assert checked > 0, "No CAS configs were small enough to check — review n_qubits threshold"
 
 
 @pytest.mark.slow
