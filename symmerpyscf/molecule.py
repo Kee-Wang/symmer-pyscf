@@ -23,6 +23,7 @@ from symmer import QuantumState, PauliwordOp
 from .utils import symmer_to_dict, t1_t2_to_fermionic_operator
 
 _H2S_BOND_ANGLE_RAD = np.radians(92.533)  # experimental H-S-H angle
+_SUPPORTED_MOLECULES = ("H2", "LiH", "HeH+", "H2S")
 
 
 def generate_symmer_data(
@@ -35,6 +36,8 @@ def generate_symmer_data(
     charge: int = 0,
     multiplicity: int = 1,
     include_state_vectors: bool = True,
+    skip_post_hf: bool = False,
+    strict_symmetry: bool = True,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Generate Symmer-compatible quantum chemistry data from molecular geometry.
@@ -52,6 +55,15 @@ def generate_symmer_data(
             vectors in the symmer_data dict. Set to False to exclude them and
             reduce file size. State vectors are always computed for mol_info
             regardless of this flag.
+        skip_post_hf: If True, skip all post-HF methods (MP2, CCSD, CISD, FCI).
+            Only HF energy and integrals will be computed. Useful for fast
+            verification against HF reference energies.
+        strict_symmetry: If True (default), preserve symmetry-adapted MOs even
+            when orbital degeneracy causes MP2 to diverge (NaN). This maximizes
+            Z2 Pauli symmetries for qubit tapering. FCI energy is unaffected
+            (basis-invariant). If False, fall back to symmetry-broken SCF for
+            MP2/FCI when degeneracy is detected (produces stable MP2 energies
+            but fewer taperable qubits).
 
     Returns:
         mol_info: Dictionary with key molecular data for further processing
@@ -62,6 +74,14 @@ def generate_symmer_data(
         >>> mol_info, data = generate_symmer_data(geometry, basis="sto-3g")
     """
     # Initialize molecule
+    if multiplicity != 1:
+        raise NotImplementedError(
+            f"Open-shell systems (multiplicity={multiplicity}) are not yet "
+            f"supported. Current implementation assumes closed-shell (RHF) "
+            f"in HF state construction, orbital degeneracy detection, and "
+            f"symmetry-broken SCF fallbacks."
+        )
+
     description = ''
     molecule = MolecularData(geometry, basis, multiplicity, charge, description)
 
@@ -103,13 +123,22 @@ def generate_symmer_data(
     degeneracy_info = _detect_orbital_degeneracy(pyscf_scf.mo_energy, pyscf_molecule.nelec)
 
     # Run post-HF methods
-    pyscf_mp2, mp2_warnings = _run_mp2(pyscf_scf, molecule, pyscf_data, verbose,
-                                        multiplicity, degeneracy_info)
-    pyscf_ccsd = _run_ccsd(pyscf_scf, molecule, pyscf_data, verbose)
-    pyscf_cisd = _run_cisd(pyscf_scf, molecule, pyscf_data, verbose)
-    pyscf_fci, fcivec, fci_warnings = _run_fci(pyscf_molecule, pyscf_scf, molecule,
-                                                pyscf_data, verbose, multiplicity,
-                                                degeneracy_info)
+    if not skip_post_hf:
+        pyscf_mp2, mp2_warnings = _run_mp2(pyscf_scf, molecule, pyscf_data, verbose,
+                                            degeneracy_info,
+                                            strict_symmetry=strict_symmetry)
+        pyscf_ccsd = _run_ccsd(pyscf_scf, molecule, pyscf_data, verbose)
+        pyscf_cisd = _run_cisd(pyscf_scf, molecule, pyscf_data, verbose)
+        pyscf_fci, fcivec, fci_warnings, fci_used_symmetry_broken = _run_fci(
+            pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
+            multiplicity, degeneracy_info,
+            strict_symmetry=strict_symmetry)
+    else:
+        pyscf_mp2 = pyscf_ccsd = pyscf_cisd = pyscf_fci = None
+        fcivec = None
+        mp2_warnings = []
+        fci_warnings = []
+        fci_used_symmetry_broken = False
 
     # Get integrals and orbital data
     molecule.canonical_orbitals = pyscf_scf.mo_coeff.astype(float)
@@ -129,7 +158,11 @@ def generate_symmer_data(
     _MAX_QUBITS_FOR_STATE = 24
     qml_fci_state = None
     if pyscf_fci is not None and fcivec is not None:
-        if molecule.n_qubits > _MAX_QUBITS_FOR_STATE:
+        if fci_used_symmetry_broken:
+            print('WARNING [AUDIT]: Skipping FCI state conversion — '
+                  'FCI was computed in symmetry-broken MO basis, which is '
+                  'incompatible with the symmetry-adapted Hamiltonian.')
+        elif molecule.n_qubits > _MAX_QUBITS_FOR_STATE:
             print(f'WARNING [AUDIT]: Skipping FCI state conversion '
                   f'(n_qubits={molecule.n_qubits} > {_MAX_QUBITS_FOR_STATE})')
         else:
@@ -207,7 +240,7 @@ def generate_symmer_data(
                       f'  Traceback:\n{tb}')
                 _errors['cisd_state_import'] = f'{type(e).__name__}: {e}'
 
-    # HF state
+    # HF state — assumes closed-shell (n_alpha == n_beta) with contiguous filling
     hf_state = [0] * molecule.n_qubits
     hf_state[0:molecule.n_electrons] = [1] * molecule.n_electrons
 
@@ -222,6 +255,8 @@ def generate_symmer_data(
         fci_warnings=fci_warnings,
         include_state_vectors=include_state_vectors,
     )
+
+    symmer_data['strict_symmetry'] = strict_symmetry
 
     # Attach error audit trail to output
     if _errors:
@@ -274,7 +309,7 @@ def initialize_molecule(
 
     Args:
         bondlength: Bond length in Angstroms (used with molecule parameter)
-        molecule: Molecule type (e.g., "H2", "LiH", "HeH+")
+        molecule: Molecule type (e.g., "H2", "LiH", "HeH+", "H2S")
         geometry: Custom geometry as list of (atom, (x, y, z)) tuples.
                   If provided, bondlength and molecule are ignored.
         basis: Basis set
@@ -357,7 +392,7 @@ def get_geometry(molecule: str, bondlength: float) -> List[Tuple[str, Tuple[floa
     """Generate molecular geometry for common molecules.
 
     Args:
-        molecule: Molecule identifier ("H2", "LiH", "HeH+", or "H2S").
+        molecule: Molecule identifier (see ``_SUPPORTED_MOLECULES``).
         bondlength: Bond length in Angstroms.
 
     Returns:
@@ -380,7 +415,7 @@ def get_geometry(molecule: str, bondlength: float) -> List[Tuple[str, Tuple[floa
                    bondlength * np.cos(_H2S_BOND_ANGLE_RAD))),
         ]
     else:
-        raise ValueError(f"Molecule {molecule} not supported. Available: ['H2', 'LiH', 'HeH+', 'H2S']")
+        raise ValueError(f"Molecule {molecule} not supported. Available: {list(_SUPPORTED_MOLECULES)}")
 
 
 def _detect_orbital_degeneracy(mo_energy, nelec, threshold=1e-8):
@@ -391,7 +426,7 @@ def _detect_orbital_degeneracy(mo_energy, nelec, threshold=1e-8):
       - 'gap': float — HOMO-LUMO gap in Hartree
       - 'degenerate_pairs': list of (i, j) pairs within threshold
     """
-    n_occ = (nelec[0] + nelec[1]) // 2  # for RHF
+    n_occ = (nelec[0] + nelec[1]) // 2  # assumes closed-shell RHF (n_alpha == n_beta)
     if n_occ > 0 and n_occ < len(mo_energy):
         gap = mo_energy[n_occ] - mo_energy[n_occ - 1]
     else:
@@ -407,9 +442,15 @@ def _detect_orbital_degeneracy(mo_energy, nelec, threshold=1e-8):
     }
 
 
-def _run_mp2(pyscf_scf, molecule, pyscf_data, verbose, multiplicity,
-             degeneracy_info=None):
-    """Run MP2 calculation with degeneracy-aware fallback. Returns (solver, warnings_list)."""
+def _run_mp2(pyscf_scf, molecule, pyscf_data, verbose, degeneracy_info=None,
+             strict_symmetry=True):
+    """Run MP2 calculation with degeneracy-aware fallback. Returns (solver, warnings_list).
+
+    When strict_symmetry=True (default), the symmetry-broken fallback is disabled
+    to preserve symmetry-adapted MOs for maximal Z2 tapering. NaN MP2 energies
+    are recorded as failures. When False, falls back to symmetry-broken SCF on
+    degeneracy-induced NaN.
+    """
     from pyscf import scf
     warnings_list = []
 
@@ -419,7 +460,8 @@ def _run_mp2(pyscf_scf, molecule, pyscf_data, verbose, multiplicity,
         pyscf_mp2.run()
         e_mp2 = pyscf_scf.e_tot + pyscf_mp2.e_corr
 
-        if np.isnan(e_mp2) and degeneracy_info and degeneracy_info['degenerate']:
+        if (np.isnan(e_mp2) and not strict_symmetry
+                and degeneracy_info and degeneracy_info['degenerate']):
             # MP2 diverged due to exact orbital degeneracy from symmetry-adapted SCF.
             # Re-run SCF without symmetry to break the degeneracy, then compute MP2.
             msg = (f"MP2 diverged (NaN) due to orbital degeneracy "
@@ -431,7 +473,7 @@ def _run_mp2(pyscf_scf, molecule, pyscf_data, verbose, multiplicity,
             mol_nosym = pyscf_scf.mol.copy()
             mol_nosym.symmetry = False
             mol_nosym.build(0, 0)
-            mf_nosym = scf.RHF(mol_nosym)
+            mf_nosym = scf.RHF(mol_nosym)  # assumes closed-shell; needs UHF/ROHF for open-shell
             mf_nosym.conv_tol = pyscf_scf.conv_tol
             mf_nosym.verbose = 0
             mf_nosym.run()
@@ -446,6 +488,17 @@ def _run_mp2(pyscf_scf, molecule, pyscf_data, verbose, multiplicity,
                         f"{e_mp2:.12f}")
                 print(f"  {msg2}")
                 warnings_list.append(msg2)
+
+        # Guard: if MP2 energy is still NaN, treat as failure
+        if np.isnan(e_mp2):
+            msg = "MP2 energy is NaN (probable orbital near-degeneracy). Recording as failed."
+            if strict_symmetry:
+                msg += (" strict_symmetry=True preserves symmetry-adapted MOs "
+                        "for maximal Z2 tapering.")
+            print(f"WARNING [AUDIT]: {msg}")
+            warnings_list.append(msg)
+            molecule.mp2_energy = None
+            return None, warnings_list
 
         molecule.mp2_energy = e_mp2
         pyscf_data['mp2'] = pyscf_mp2
@@ -511,23 +564,27 @@ def _run_cisd(pyscf_scf, molecule, pyscf_data, verbose):
 
 
 def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
-             multiplicity=1, degeneracy_info=None):
+             multiplicity=1, degeneracy_info=None, strict_symmetry=True):
     """Run spin-constrained FCI with verification and symmetry-broken fallback.
 
     Strategy:
-      1. If orbital degeneracy detected at HOMO/LUMO boundary, go directly to
-         symmetry-broken FCI (symmetry-adapted basis can restrict the FCI
-         configuration space and miss the correct root, even when spin is correct).
+      1. If strict_symmetry=False and orbital degeneracy detected at HOMO/LUMO
+         boundary, use symmetry-broken FCI (symmetry-adapted basis can restrict
+         the FCI configuration space and miss the correct root).
       2. Otherwise, run FCI with fix_spin_(shift=0.2) on symmetry-adapted orbitals.
+         FCI energy is basis-invariant, so symmetry-adapted MOs are preferred
+         for maximal Z2 Pauli tapering.
       3. Verify <S^2> matches target spin.  If not, retry with shift=1.0.
 
-    Returns (solver, fcivec, warnings_list). On failure returns (None, None, warnings_list).
+    Returns (solver, fcivec, warnings_list, used_symmetry_broken).
+    On failure returns (None, None, warnings_list, False).
     """
     from pyscf import scf as pyscf_scf_mod
     from pyscf.fci import addons as fci_addons, spin_op
     warnings_list = []
     fci_spin_squared = None
     fci_multiplicity = None
+    used_symmetry_broken = False
 
     try:
         S = (multiplicity - 1) / 2
@@ -537,7 +594,7 @@ def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
         # With symmetry=True, degenerate orbitals at the HOMO/LUMO boundary
         # can restrict the FCI configuration space to the wrong root (e.g.,
         # HN finds a singlet 0.04 Ha above the true ground state singlet).
-        if degeneracy_info and degeneracy_info['degenerate']:
+        if not strict_symmetry and degeneracy_info and degeneracy_info['degenerate']:
             msg = (f"Orbital degeneracy detected at HOMO/LUMO boundary "
                    f"(gap={degeneracy_info['gap']:.2e} Ha). "
                    f"Using symmetry-broken SCF for FCI to avoid "
@@ -545,10 +602,12 @@ def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
             print(f"WARNING [AUDIT]: {msg}")
             warnings_list.append(msg)
 
+            used_symmetry_broken = True
+
             mol_nosym = pyscf_molecule.copy()
             mol_nosym.symmetry = False
             mol_nosym.build(0, 0)
-            mf_nosym = pyscf_scf_mod.RHF(mol_nosym)
+            mf_nosym = pyscf_scf_mod.RHF(mol_nosym)  # assumes closed-shell; needs UHF/ROHF for open-shell
             mf_nosym.conv_tol = pyscf_scf.conv_tol
             mf_nosym.verbose = 0
             mf_nosym.run()
@@ -567,6 +626,35 @@ def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
             warnings_list.append(
                 f"FCI with symmetry-broken SCF: E={fci_energy:.12f}, "
                 f"<S^2>={ss_val:.4f}")
+
+            # Verify spin matches target; retry with stronger penalty if not
+            spin_ok = abs(ss_val - target_ss) < 0.1
+            if not spin_ok:
+                msg = (f"FCI spin verification failed (symmetry-broken): "
+                       f"<S^2>={ss_val:.4f} (expected {target_ss:.1f}), "
+                       f"mult={mult_val:.2f}. Retrying with shift=1.0.")
+                print(f"WARNING [AUDIT]: {msg}")
+                warnings_list.append(msg)
+
+                pyscf_fci2 = fci.FCI(mol_nosym, mf_nosym.mo_coeff)
+                pyscf_fci2.verbose = 0
+                fci_addons.fix_spin_(pyscf_fci2, shift=1.0, ss=target_ss)
+                fci_energy2, fcivec2 = pyscf_fci2.kernel()
+                ss_val2, mult_val2 = spin_op.spin_square(fcivec2, norb, nelec)
+
+                if abs(ss_val2 - target_ss) < 0.1:
+                    fci_energy, fcivec = fci_energy2, fcivec2
+                    pyscf_fci = pyscf_fci2
+                    fci_spin_squared = float(ss_val2)
+                    fci_multiplicity = float(mult_val2)
+                    warnings_list.append(
+                        f"FCI converged with shift=1.0 (symmetry-broken): "
+                        f"E={fci_energy:.12f}, <S^2>={ss_val2:.4f}")
+                else:
+                    msg2 = (f"FCI spin constraint failed even with shift=1.0 "
+                            f"(symmetry-broken): <S^2>={ss_val2:.4f}")
+                    print(f"WARNING [AUDIT]: {msg2}")
+                    warnings_list.append(msg2)
         else:
             norb = pyscf_scf.mo_coeff.shape[1]
             nelec = pyscf_molecule.nelec
@@ -621,14 +709,14 @@ def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
                   f'({molecule.n_electrons} electrons) is {molecule.fci_energy}'
                   f' (<S^2>={fci_spin_squared:.4f})')
 
-        return pyscf_fci, fcivec, warnings_list
+        return pyscf_fci, fcivec, warnings_list, used_symmetry_broken
     except Exception as e:
         tb = traceback.format_exc()
         print(f'WARNING [AUDIT]: FCI failed for {molecule.name}\n'
               f'  Error: {type(e).__name__}: {e}\n'
               f'  Traceback:\n{tb}')
         molecule.fci_energy = None
-        return None, None, warnings_list
+        return None, None, warnings_list, False
 
 
 def _convert_fci_state(fcivec, norb, n_alpha, n_beta):
@@ -745,16 +833,18 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
 
     # Build FCI entry with spin info and warnings
     fci_entry = _energy_entry(molecule.fci_energy, pyscf_fci)
-    fci_entry['spin_constrained'] = True  # always using fix_spin_ now
-    if molecule._pyscf_data.get('fci_spin_squared') is not None:
-        fci_entry['spin_squared'] = molecule._pyscf_data['fci_spin_squared']
-    if molecule._pyscf_data.get('fci_multiplicity') is not None:
-        fci_entry['multiplicity'] = molecule._pyscf_data['fci_multiplicity']
+    fci_entry['spin_constrained'] = pyscf_fci is not None
+    fci_ss = molecule._pyscf_data.get('fci_spin_squared')
+    fci_mult = molecule._pyscf_data.get('fci_multiplicity')
+    fci_entry['spin_squared'] = fci_ss
+    fci_entry['multiplicity'] = fci_mult
     fci_entry['target_multiplicity'] = molecule.multiplicity
-    if molecule._pyscf_data.get('fci_spin_squared') is not None:
+    if fci_ss is not None:
         S = (molecule.multiplicity - 1) / 2
         target_ss = S * (S + 1)
-        fci_entry['spin_matches_target'] = abs(molecule._pyscf_data['fci_spin_squared'] - target_ss) < 0.1
+        fci_entry['spin_matches_target'] = abs(fci_ss - target_ss) < 0.1
+    else:
+        fci_entry['spin_matches_target'] = None
     if fci_warnings:
         fci_entry['warnings'] = fci_warnings
 
