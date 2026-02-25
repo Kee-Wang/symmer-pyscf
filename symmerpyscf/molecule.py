@@ -38,6 +38,7 @@ def generate_symmer_data(
     include_state_vectors: bool = True,
     skip_post_hf: bool = False,
     strict_symmetry: bool = True,
+    dm0: Optional[np.ndarray] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Generate Symmer-compatible quantum chemistry data from molecular geometry.
@@ -64,6 +65,9 @@ def generate_symmer_data(
             (basis-invariant). If False, fall back to symmetry-broken SCF for
             MP2/FCI when degeneracy is detected (produces stable MP2 energies
             but fewer taperable qubits).
+        dm0: Optional initial density matrix for SCF. Pass the converged DM
+            from an adjacent geometry point to improve SCF convergence for
+            stretched bond lengths.
 
     Returns:
         mol_info: Dictionary with key molecular data for further processing
@@ -103,10 +107,43 @@ def generate_symmer_data(
     molecule.n_qubits = 2 * molecule.n_orbitals
     molecule.nuclear_repulsion = float(pyscf_molecule.energy_nuc())
 
-    # Run SCF
+    # Run SCF with convergence cascade
     pyscf_scf = compute_scf(pyscf_molecule)
     pyscf_scf.conv_tol = 1e-6
-    mf = pyscf_scf.run()
+    scf_method = "standard"
+
+    # Stage 1: Standard SCF (with optional dm0 from adjacent geometry)
+    if dm0 is not None:
+        mf = pyscf_scf.run(dm0)
+    else:
+        mf = pyscf_scf.run()
+
+    # Stage 2: Level shift (if Stage 1 failed)
+    if not pyscf_scf.converged:
+        scf_method = "level_shift"
+        pyscf_scf.level_shift = 0.5
+        pyscf_scf.verbose = 0
+        dm_init = dm0 if dm0 is not None else pyscf_scf.make_rdm1()
+        mf = pyscf_scf.run(dm_init)
+        pyscf_scf.level_shift = 0.0
+
+    # Stage 3: Newton solver (if Stage 2 also failed)
+    if not pyscf_scf.converged:
+        from pyscf import scf as pyscf_scf_mod
+        scf_method = "newton"
+        newton_scf = pyscf_scf_mod.newton(pyscf_scf)
+        newton_scf.verbose = 0
+        dm_init = pyscf_scf.make_rdm1()
+        newton_scf.run(dm_init)
+        # Propagate Newton's converged results back to pyscf_scf so all
+        # downstream post-HF methods (MP2, CCSD, FCI) use the correct orbitals.
+        if newton_scf.converged:
+            pyscf_scf.mo_coeff = newton_scf.mo_coeff
+            pyscf_scf.mo_energy = newton_scf.mo_energy
+            pyscf_scf.mo_occ = newton_scf.mo_occ
+            pyscf_scf.e_tot = newton_scf.e_tot
+            pyscf_scf.converged = newton_scf.converged
+
     molecule.hf_energy = float(pyscf_scf.e_tot)
     molecule.n_electrons = pyscf_molecule.nelec[0] + pyscf_molecule.nelec[1]
 
@@ -257,6 +294,7 @@ def generate_symmer_data(
     )
 
     symmer_data['strict_symmetry'] = strict_symmetry
+    symmer_data['hf_method_fallback'] = scf_method
 
     # Attach error audit trail to output
     if _errors:
@@ -279,6 +317,9 @@ def generate_symmer_data(
         'number_beta': of.FermionOperator(symmer_data['auxiliary_operators']['N_beta_second_quantized']),
         'S2': of.FermionOperator(symmer_data['auxiliary_operators']['S^2_operator_second_quantized']),
     }
+
+    # SCF density matrix — for DM propagation between adjacent geometry points
+    mol_info['scf_dm'] = pyscf_scf.make_rdm1()
 
     # Optional fields — only present if the solver succeeded
     fci_props = symmer_data['calculated_properties'].get('FCI', {})
@@ -701,6 +742,7 @@ def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
 
         molecule.fci_energy = float(fci_energy)
         pyscf_data['fci'] = pyscf_fci
+        pyscf_data['fci_converged'] = bool(pyscf_fci.converged)
         pyscf_data['fci_spin_squared'] = fci_spin_squared
         pyscf_data['fci_multiplicity'] = fci_multiplicity
 
@@ -716,6 +758,7 @@ def _run_fci(pyscf_molecule, pyscf_scf, molecule, pyscf_data, verbose,
               f'  Error: {type(e).__name__}: {e}\n'
               f'  Traceback:\n{tb}')
         molecule.fci_energy = None
+        pyscf_data['fci_converged'] = False
         return None, None, warnings_list, False
 
 
@@ -823,7 +866,7 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
         if solver_obj is not None and hasattr(solver_obj, 'converged'):
             converged = bool(solver_obj.converged)
         else:
-            converged = solver_obj is not None
+            converged = False
         return {"energy": float(energy), "converged": converged}
 
     # Build MP2 entry with warnings
@@ -831,8 +874,13 @@ def _compile_symmer_data(molecule, pyscf_molecule, pyscf_scf, pyscf_mp2, pyscf_c
     if mp2_warnings:
         mp2_entry['warnings'] = mp2_warnings
 
-    # Build FCI entry with spin info and warnings
-    fci_entry = _energy_entry(molecule.fci_energy, pyscf_fci)
+    # Build FCI entry with explicit convergence flag (not from solver object,
+    # which is unreliable for spin-penalized FCI via fix_spin_)
+    fci_converged = molecule._pyscf_data.get('fci_converged', False)
+    fci_entry = {
+        "energy": float(molecule.fci_energy) if molecule.fci_energy is not None else None,
+        "converged": fci_converged,
+    }
     fci_entry['spin_constrained'] = pyscf_fci is not None
     fci_ss = molecule._pyscf_data.get('fci_spin_squared')
     fci_mult = molecule._pyscf_data.get('fci_multiplicity')
